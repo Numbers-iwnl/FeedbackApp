@@ -1,0 +1,123 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Feedback #{{ fb.id }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        .box {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0
+        }
+
+        a.btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #0b5;
+            color: #fff;
+            text-decoration: none
+        }
+
+        ul {
+            padding-left: 18px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+    </style>
+</head>
+<body>
+    <p><a class="btn" href="/feedbacks/">← Voltar</a></p>
+    <h2>Feedback #{{ fb.id }}</h2>
+
+    <div class="grid">
+        <div><b>Aluno:</b> {{ fb.student_name }}</div>
+        <div><b>Operador:</b> {{ fb.operator_name|default:"—" }}</div>
+        <div><b>Tipo:</b> {{ fb.get_type_display }}</div>
+        <div><b>Assunto:</b> {{ fb.get_subject_display }}</div>
+        <div><b>Curso:</b> {{ fb.course_name|default:"—" }}</div>
+        <div><b>Turma:</b> {{ fb.class_name|default:"—" }}</div>
+        <div><b>Status atual:</b> {{ fb.get_status_display }}</div>
+        <div><b>Data:</b> {{ fb.created_at|date:"Y-m-d H:i" }}</div>
+        {% if fb.resolved_at %}
+        <div><b>Resolvido em:</b> {{ fb.resolved_at|date:"Y-m-d H:i" }}</div>
+        {% endif %}
+    </div>
+
+    <div class="box">
+        <b>Atualizar status</b>
+        <form method="post" class="row" style="margin-top:8px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="status">
+            {{ form_status.status }}
+            <button type="submit">Salvar status</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <b>Descrição</b>
+        <p>{{ fb.description|linebreaks|default:"(sem descrição)" }}</p>
+    </div>
+
+    <div class="box">
+        <b>Anexos</b>
+        <ul>
+            {% for a in fb.attachments.all %}
+            <li>
+                <a href="{{ a.file.url }}" target="_blank">{{ a.file.name|default:"arquivo" }}</a>
+                {% if a.mime_type and a.mime_type|slice:":5" == "audio" %}
+                <br><audio controls src="{{ a.file.url }}"></audio>
+                {% endif %}
+            </li>
+            {% empty %}
+            <li>Nenhum anexo.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="box">
+        <b>Comentários do suporte</b>
+        <ul>
+            {% for c in fb.comments.all %}
+            <li>
+                <b>{{ c.author_name|default:"Suporte" }}</b>
+                <small>— {{ c.created_at|date:"Y-m-d H:i" }}</small><br>
+                {{ c.comment_text }}
+            </li>
+            {% empty %}
+            <li>Nenhum comentário ainda.</li>
+            {% endfor %}
+        </ul>
+
+        <form method="post" style="margin-top:12px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="comment">
+            <div class="row" style="margin:8px 0">
+                <input name="author_name" placeholder="Seu nome (opcional)" style="flex:1;min-width:180px;padding:8px;border:1px solid #ddd;border-radius:8px">
+                <input name="comment_text" placeholder="Adicionar comentário..." required
+                       style="flex:3;min-width:260px;padding:8px;border:1px solid #ddd;border-radius:8px">
+            </div>
+            <button type="submit">Adicionar comentário</button>
+        </form>
+    </div>
+</body>
+</html>

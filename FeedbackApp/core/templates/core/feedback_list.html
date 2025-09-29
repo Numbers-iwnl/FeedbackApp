@@ -1,0 +1,156 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Feedbacks</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 16px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left
+        }
+
+        .top {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            flex-wrap: wrap
+        }
+
+        a.btn, button.btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #0b5;
+            color: #fff;
+            text-decoration: none;
+            border: 0;
+            cursor: pointer
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(6,minmax(140px,1fr));
+            gap: 8px;
+            margin: 10px 0
+        }
+
+            .filters input, .filters select {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 8px
+            }
+
+        .pager {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 12px
+        }
+
+        .muted {
+            color: #666
+        }
+    </style>
+</head>
+<body>
+    <div class="top">
+        <h2>Feedbacks</h2>
+        <div style="margin-left:auto;display:flex;gap:8px">
+            <a class="btn" href="/dashboard/">Dashboard</a>
+            <a class="btn" href="/export/csv/{% if querystring %}?{{ querystring }}{% endif %}">Exportar CSV</a>
+            <a class="btn" href="/export/xlsx/{% if querystring %}?{{ querystring }}{% endif %}">Exportar Excel</a>
+            <a class="btn" href="/feedbacks/novo/">Novo feedback</a>
+            <a class="btn" href="/logout/">Sair</a>
+        </div>
+    </div>
+
+    <!-- filtros -->
+    <form method="get" class="filters">
+        <input name="aluno" value="{{ aluno }}" placeholder="Filtrar por aluno">
+        <input name="operador" value="{{ operador }}" placeholder="Filtrar por operador">
+        <input name="curso" value="{{ curso }}" placeholder="Filtrar por curso">
+
+        <select name="tipo">
+            <option value="">Todos os tipos</option>
+            {% for k, v in tipo_choices %}
+            <option value="{{ k }}" {% if tipo == k %} selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="status">
+            <option value="">Todos os status</option>
+            {% for k, v in status_choices %}
+            <option value="{{ k }}" {% if status == k %} selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+
+        <div></div>
+
+        <input type="date" name="de" value="{{ de }}" title="De">
+        <input type="date" name="ate" value="{{ ate }}" title="Até">
+        <div style="grid-column: span 4; display:flex; gap:8px;">
+            <button class="btn" type="submit">Aplicar</button>
+            <a class="btn" href="/feedbacks/">Limpar</a>
+            <span class="muted">Exibindo {{ items|length }} de {{ paginator.count }} (pág. {{ page_obj.number }} / {{ paginator.num_pages }})</span>
+        </div>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Aluno</th>
+                <th>Tipo</th>
+                <th>Assunto</th>
+                <th>Curso/Turma</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in items %}
+            <tr>
+                <td><a href="/feedbacks/{{ f.id }}/">#{{ f.id }}</a></td>
+                <td>{{ f.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ f.student_name }}</td>
+                <td>{{ f.get_type_display }}</td>
+                <td>{{ f.get_subject_display }}</td>
+                <td>{{ f.course_name|default:"None" }} / {{ f.class_name|default:"None" }}</td>
+                <td>{{ f.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">Sem resultados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if paginator.num_pages > 1 %}
+    <div class="pager">
+        {% if page_obj.has_previous %}
+        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page=1">« Primeiro</a>
+        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page_obj.previous_page_number }}">‹ Anterior</a>
+        {% endif %}
+        <span class="muted">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page_obj.next_page_number }}">Próxima ›</a>
+        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ paginator.num_pages }}">Última »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>

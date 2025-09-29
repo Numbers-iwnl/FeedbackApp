@@ -1,0 +1,61 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Entrar</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            display: grid;
+            place-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f7f7f7
+        }
+
+        .card {
+            background: #fff;
+            padding: 24px 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.08);
+            min-width: 320px
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 6px 0 12px
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 0;
+            border-radius: 8px;
+            background: #0b5;
+            color: #fff;
+            cursor: pointer
+        }
+
+        .err {
+            color: #b00;
+            margin-bottom: 8px
+        }
+    </style>
+</head>
+<body>
+    <form class="card" method="post">
+        <h3>Entrar</h3>
+        {% csrf_token %}
+        {% if form.errors %}<div class="err">Usuário ou senha inválidos.</div>{% endif %}
+        <label>Usuário</label>
+        {{ form.username }}
+        <label>Senha</label>
+        {{ form.password }}
+        <button type="submit">Entrar</button>
+    </form>
+</body>
+</html>

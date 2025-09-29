@@ -1,0 +1,97 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Novo feedback</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            max-width: 860px;
+            margin: 24px auto;
+            padding: 0 16px
+        }
+
+        form .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 8px 0
+        }
+
+        input, select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px
+        }
+
+        button {
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 8px;
+            background: #0b5;
+            color: #fff;
+            cursor: pointer
+        }
+
+        .ok {
+            background: #e6ffed;
+            border: 1px solid #b6f2c6;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px
+        }
+    </style>
+</head>
+<body>
+    <h2>Novo feedback</h2>
+
+    {% if form.errors or form.non_field_errors %}
+    <div class="ok" style="background:#ffecec;border-color:#f5b5b5;color:#a40000">
+        <strong>Erros no formulário:</strong>
+        <ul>
+            {% for field, errors in form.errors.items %}
+            <li><b>{{ field }}:</b> {{ errors|join:", " }}</li>
+            {% endfor %}
+            {% for e in form.non_field_errors %}
+            <li>{{ e }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+
+    {% if created_id %}
+    <div class="ok">Feedback #{{ created_id }} criado com sucesso.</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <label>Nome do aluno* {{ form.student_name }}</label>
+            <label>Operador {{ form.operator_name }}</label>
+        </div>
+
+        <div class="row">
+            <label>Tipo* {{ form.type }}</label>
+            <label>Assunto* {{ form.subject }}</label>
+        </div>
+
+        <div class="row">
+            <label>Curso {{ form.course_name }}</label>
+            <label>Turma {{ form.class_name }}</label>
+        </div>
+
+        <label>Descrição {{ form.description }}</label>
+        <label>Anexos (prints/áudios) <input type="file" name="attachments" multiple></label>
+
+        <button type="submit">Salvar</button>
+    </form>
+</body>
+</html>

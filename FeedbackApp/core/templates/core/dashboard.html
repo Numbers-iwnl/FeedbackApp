@@ -1,0 +1,212 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Dashboard de Feedbacks</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        :root {
+            --gap: 14px
+        }
+
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px
+        }
+
+        h1 {
+            margin: 0 0 12px
+        }
+
+        .top {
+            display: flex;
+            gap: var(--gap);
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: var(--gap)
+        }
+
+        .actions {
+            display: flex;
+            gap: var(--gap);
+            flex-wrap: wrap
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #0b5;
+            color: #fff;
+            text-decoration: none
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: var(--gap);
+            margin: var(--gap) 0
+        }
+
+        .card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 14px
+        }
+
+        .num {
+            font-size: 28px;
+            font-weight: 700
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap)
+        }
+
+        canvas {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 10px
+        }
+
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            .cards {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media (max-width:600px) {
+            .cards {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="top">
+        <h1>Dashboard de Feedbacks</h1>
+        <div class="actions">
+            <label>
+                Mês:
+                <input id="month" type="month">
+            </label>
+            <a class="btn" href="/feedbacks/">Tabela detalhada</a>
+            <a class="btn" href="/feedbacks/novo/">Novo feedback</a>
+            <a class="btn" href="/export/csv/">Exportar CSV</a>
+        </div>
+    </div>
+
+    <div class="cards">
+        <div class="card"><div>Total</div><div id="c-total" class="num">—</div></div>
+        <div class="card"><div>Elogios</div><div id="c-elogios" class="num">—</div></div>
+        <div class="card"><div>Reclamações</div><div id="c-reclamacoes" class="num">—</div></div>
+        <div class="card"><div>Sugestões</div><div id="c-sugestoes" class="num">—</div></div>
+    </div>
+    <div class="cards">
+        <div class="card"><div>Taxa de resolução</div><div id="c-resolucao" class="num">—%</div></div>
+        <div class="card"><div>Comparação mensal</div><div><canvas id="cmpChart" height="120"></canvas></div></div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <h3>Distribuição por tipo</h3>
+            <canvas id="tipoChart" height="200"></canvas>
+        </div>
+        <div>
+            <h3>Distribuição por assunto</h3>
+            <canvas id="assuntoChart" height="200"></canvas>
+        </div>
+        <div>
+            <h3>Status</h3>
+            <canvas id="statusChart" height="200"></canvas>
+        </div>
+        <div>
+            <h3>Top cursos/turmas</h3>
+            <canvas id="cursoChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const $ = sel => document.querySelector(sel);
+        const monthInput = $('#month');
+
+        function pad(n) { return String(n).padStart(2, '0') }
+        function ymNow() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) }
+        function prevMonth(ym) {
+            let [y, m] = ym.split('-').map(Number);
+            if (m === 1) { y--; m = 12 } else { m--; }
+            return y + '-' + pad(m);
+        }
+
+        let charts = {};
+
+        function ensureChart(id, type, labels, data) {
+            if (charts[id]) { charts[id].data.labels = labels; charts[id].data.datasets[0].data = data; charts[id].update(); return; }
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type,
+                data: { labels, datasets: [{ label: '', data }] },
+                options: { responsive: true, plugins: { legend: { display: true } } }
+            });
+        }
+
+        async function fetchJSON(url) {
+            const r = await fetch(url, { cache: 'no-store' });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        }
+
+        async function loadMonth(ym) {
+            // summary + breakdown
+            const [sum, brk] = await Promise.all([
+                fetchJSON(`/stats/summary/?month=${ym}`),
+                fetchJSON(`/stats/breakdown/?month=${ym}`)
+            ]);
+
+            // cards
+            $('#c-total').textContent = sum.total;
+            $('#c-elogios').textContent = sum.elogios;
+            $('#c-reclamacoes').textContent = sum.reclamacoes;
+            $('#c-sugestoes').textContent = sum.sugestoes;
+            $('#c-resolucao').textContent = (sum.taxa_resolucao_pct || 0) + '%';
+
+            // charts
+            ensureChart('tipoChart', 'pie',
+                brk.type.map(x => x.label), brk.type.map(x => x.value));
+            ensureChart('assuntoChart', 'bar',
+                brk.subject.map(x => x.label), brk.subject.map(x => x.value));
+            ensureChart('statusChart', 'bar',
+                brk.status.map(x => x.label), brk.status.map(x => x.value));
+            // top 10 cursos
+            const topCourse = brk.course.sort((a, b) => b.value - a.value).slice(0, 10);
+            ensureChart('cursoChart', 'bar',
+                topCourse.map(x => x.label), topCourse.map(x => x.value));
+
+            // comparação mensal (total mês atual vs anterior)
+            const prev = prevMonth(ym);
+            const sumPrev = await fetchJSON(`/stats/summary/?month=${prev}`);
+            ensureChart('cmpChart', 'bar',
+                [prev, ym],
+                [sumPrev.total, sum.total]
+            );
+        }
+
+        monthInput.addEventListener('change', () => loadMonth(monthInput.value));
+        monthInput.value = ymNow();
+        loadMonth(monthInput.value).catch(err => {
+            console.error(err);
+            alert('Erro ao carregar dados do dashboard.');
+        });
+    </script>
+</body>
+</html>
