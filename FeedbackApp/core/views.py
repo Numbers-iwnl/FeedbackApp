@@ -1,12 +1,16 @@
-﻿import csv
-from datetime import datetime
+﻿# -*- coding: utf-8 -*-
+import csv
+from datetime import datetime, timedelta
 from io import BytesIO
+from pathlib import Path
 
-from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.http import HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Avg, F, ExpressionWrapper, DurationField
+from django.db.models.functions import TruncDate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator
 
@@ -21,31 +25,44 @@ from openpyxl.styles import Font
 # ---- PDF (ReportLab) ----
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate,
-    Table,
-    TableStyle,
-    Paragraph,
-    Spacer,
-)
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 
 # ============ Access control ============
-def _in_support(u):
+def _in_support(user):
     """Active user AND (superuser OR in group 'Suporte')."""
-    return u.is_active and (u.is_superuser or u.groups.filter(name="Suporte").exists())
-
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name="Suporte").exists())
 
 support_required = user_passes_test(_in_support, login_url="login")
 # =======================================
 
 
-# ============ Shared helpers ============
+# ============ Helpers ============
+def _month_bounds(ym: str):
+    """ym: 'YYYY-MM' → timezone-aware [start, end) for that month."""
+    y, m = map(int, ym.split("-"))
+    start_naive = datetime(y, m, 1)
+    end_naive = datetime(y + 1, 1, 1) if m == 12 else datetime(y, m + 1, 1)
+    start = timezone.make_aware(start_naive)
+    end = timezone.make_aware(end_naive)
+    return start, end
+
+
+def _current_operator(user):
+    """Pretty operator name."""
+    full = (user.get_full_name() or "").strip()
+    if full:
+        return full
+    if (user.first_name or "").strip():
+        return user.first_name.strip()
+    return user.username
+
+
 def _filtered_queryset(request):
     """
     Apply list filters from querystring to Feedback queryset.
-    Supports: aluno, operador, curso, tipo, status, de (YYYY-MM-DD), ate (YYYY-MM-DD).
+    Supports: aluno, operador, curso, tipo, assunto, status, de (YYYY-MM-DD), ate (YYYY-MM-DD).
     """
     qs = Feedback.objects.all()
     g = request.GET
@@ -54,6 +71,7 @@ def _filtered_queryset(request):
     operador = (g.get("operador") or "").strip()
     curso = (g.get("curso") or "").strip()
     tipo = (g.get("tipo") or "").strip()
+    assunto = (g.get("assunto") or "").strip()
     status = (g.get("status") or "").strip()
     de = (g.get("de") or "").strip()
     ate = (g.get("ate") or "").strip()
@@ -66,6 +84,8 @@ def _filtered_queryset(request):
         qs = qs.filter(course_name__icontains=curso)
     if tipo:
         qs = qs.filter(type=tipo)
+    if assunto:
+        qs = qs.filter(subject=assunto)
     if status:
         qs = qs.filter(status=status)
 
@@ -100,30 +120,32 @@ def ping(request):
 @support_required
 def feedback_create(request):
     if request.method == "POST":
-        form = FeedbackForm(request.POST)
-        files = request.FILES.getlist("attachments")
+        form = FeedbackForm(request.POST, request.FILES)
         if form.is_valid():
-            fb = form.save()
-            for f in files:
+            fb = form.save(commit=False)
+            fb.operator_name = _current_operator(request.user)  # force actual operator
+            fb.save()
+
+            messages.success(request, f"Feedback #{fb.id} criado com sucesso.")
+
+            for f in form.cleaned_data.get("attachments", []):
                 FeedbackAttachment.objects.create(
                     feedback=fb,
                     file=f,
                     mime_type=getattr(f, "content_type", None),
                     file_size=getattr(f, "size", None),
                 )
-            # PRG: evita duplicar no refresh
-            return redirect(f"{reverse('feedback_create')}?created_id={fb.id}&saved_files={len(files)}")
+            return redirect(f"{reverse('feedback_create')}?created_id={fb.id}")
         return render(request, "core/feedback_form.html", {"form": form})
 
-    # GET
-    form = FeedbackForm()
+    # GET — prefill operator
+    initial = {"operator_name": _current_operator(request.user)}
     return render(
         request,
         "core/feedback_form.html",
         {
-            "form": form,
+            "form": FeedbackForm(initial=initial),
             "created_id": request.GET.get("created_id"),
-            "saved_files": request.GET.get("saved_files"),
         },
     )
 
@@ -134,11 +156,9 @@ def feedback_create(request):
 def feedback_list(request):
     qs = _filtered_queryset(request).order_by("-created_at")
 
-    # pagination (25 per page)
     paginator = Paginator(qs, 25)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    # keep querystring without "page" for pager/export links
     q = request.GET.copy()
     q.pop("page", None)
     querystring = q.urlencode()
@@ -149,16 +169,17 @@ def feedback_list(request):
         "paginator": paginator,
         "querystring": querystring,
 
-        # current filter values
         "aluno": (request.GET.get("aluno") or "").strip(),
         "operador": (request.GET.get("operador") or "").strip(),
         "curso": (request.GET.get("curso") or "").strip(),
         "tipo": (request.GET.get("tipo") or "").strip(),
+        "assunto": (request.GET.get("assunto") or "").strip(),
         "status": (request.GET.get("status") or "").strip(),
         "de": (request.GET.get("de") or "").strip(),
         "ate": (request.GET.get("ate") or "").strip(),
 
         "tipo_choices": Feedback.TIPO_CHOICES,
+        "assunto_choices": Feedback.ASSUNTO_CHOICES,
         "status_choices": Feedback.STATUS_CHOICES,
     }
     return render(request, "core/feedback_list.html", context)
@@ -180,6 +201,7 @@ def feedback_detail(request, pk):
                 fb.status = new_status
                 fb.resolved_at = fb.resolved_at or timezone.now() if new_status == "resolvido" else None
                 fb.save()
+                messages.success(request, f"Status atualizado para {fb.get_status_display()}.")
             return redirect("feedback_detail", pk=fb.pk)
 
         if action == "comment":
@@ -191,11 +213,27 @@ def feedback_detail(request, pk):
                     author_name=author,
                     comment_text=text,
                 )
+                messages.success(request, "Comentário adicionado.")
             return redirect("feedback_detail", pk=fb.pk)
 
-    # GET
     form_status = StatusForm(initial={"status": fb.status})
     return render(request, "core/feedback_detail.html", {"fb": fb, "form_status": form_status})
+
+
+# ---- Attachment gated download ----
+@login_required
+@support_required
+def attachment_download(request, pk):
+    att = get_object_or_404(FeedbackAttachment, pk=pk)
+    try:
+        return FileResponse(
+            open(att.file.path, "rb"),
+            as_attachment=False,
+            content_type=att.mime_type or "application/octet-stream",
+            filename=Path(att.file.name).name,
+        )
+    except FileNotFoundError:
+        raise Http404("Arquivo não encontrado")
 
 
 # ---- CSV export (respects filters) ----
@@ -208,38 +246,25 @@ def export_csv(request):
     response["Content-Disposition"] = "attachment; filename=feedbacks.csv"
     w = csv.writer(response, delimiter=";")
 
-    w.writerow(
-        [
-            "id",
-            "data",
-            "aluno",
-            "operador",
-            "tipo",
-            "assunto",
-            "curso",
-            "turma",
-            "status",
-            "descricao",
-            "anexos_qtd",
-        ]
-    )
+    w.writerow([
+        "id", "data", "aluno", "operador", "tipo", "assunto",
+        "curso", "turma", "status", "descricao", "anexos_qtd"
+    ])
 
     for f in qs:
-        w.writerow(
-            [
-                f.id,
-                f.created_at.strftime("%Y-%m-%d %H:%M"),
-                f.student_name or "",
-                f.operator_name or "",
-                f.type,
-                f.subject,
-                f.course_name or "",
-                f.class_name or "",
-                f.status,
-                (f.description or "").replace("\n", " ").strip()[:500],
-                f.attachments.count(),
-            ]
-        )
+        w.writerow([
+            f.id,
+            f.created_at.strftime("%Y-%m-%d %H:%M"),
+            f.student_name or "",
+            f.operator_name or "",
+            f.type,
+            f.subject,
+            f.course_name or "",
+            f.class_name or "",
+            f.status,
+            (f.description or "").replace("\n", " ").strip()[:500],
+            f.attachments.count(),
+        ])
 
     return response
 
@@ -248,24 +273,15 @@ def export_csv(request):
 @login_required
 @support_required
 def export_excel(request):
-    qs = _filtered_queryset(request).order_by("-created_at")[:2000]  # cap to avoid huge files
+    qs = _filtered_queryset(request).order_by("-created_at")[:2000]  # safety cap
 
     wb = Workbook()
     ws = wb.active
     ws.title = "Feedbacks"
 
     headers = [
-        "ID",
-        "Data",
-        "Aluno",
-        "Operador",
-        "Tipo",
-        "Assunto",
-        "Curso",
-        "Turma",
-        "Status",
-        "Descrição",
-        "Anexos (qtd)",
+        "ID", "Data", "Aluno", "Operador", "Tipo", "Assunto",
+        "Curso", "Turma", "Status", "Descrição", "Anexos (qtd)"
     ]
     ws.append(headers)
     for c in range(1, len(headers) + 1):
@@ -276,21 +292,19 @@ def export_excel(request):
     status_map = dict(Feedback.STATUS_CHOICES)
 
     for f in qs:
-        ws.append(
-            [
-                f.id,
-                f.created_at.strftime("%Y-%m-%d %H:%M"),
-                f.student_name or "",
-                f.operator_name or "",
-                tipo_map.get(f.type, f.type),
-                assunto_map.get(f.subject, f.subject),
-                f.course_name or "",
-                f.class_name or "",
-                status_map.get(f.status, f.status),
-                (f.description or "").replace("\n", " ").strip(),
-                f.attachments.count(),
-            ]
-        )
+        ws.append([
+            f.id,
+            f.created_at.strftime("%Y-%m-%d %H:%M"),
+            f.student_name or "",
+            f.operator_name or "",
+            tipo_map.get(f.type, f.type),
+            assunto_map.get(f.subject, f.subject),
+            f.course_name or "",
+            f.class_name or "",
+            status_map.get(f.status, f.status),
+            (f.description or "").replace("\n", " ").strip(),
+            f.attachments.count(),
+        ])
 
     # auto width
     for col_idx in range(1, len(headers) + 1):
@@ -311,7 +325,7 @@ def export_excel(request):
     return resp
 
 
-# ---- PDF export (monthly summary stays as-is) ----
+# ---- PDF export (monthly summary) ----
 @login_required
 @support_required
 def export_pdf(request):
@@ -341,17 +355,13 @@ def export_pdf(request):
 
     data_resumo = [["Métrica", "Valor"]] + [[k, v] for k, v in resumo.items()]
     t1 = Table(data_resumo, colWidths=[220, 120])
-    t1.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
-                ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
-            ]
-        )
-    )
+    t1.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
+    ]))
     story.append(t1)
     story.append(Spacer(1, 12))
 
@@ -362,31 +372,25 @@ def export_pdf(request):
     status_map = dict(Feedback.STATUS_CHOICES)
 
     for f in qs:
-        rows.append(
-            [
-                f.id,
-                f.created_at.strftime("%Y-%m-%d %H:%M"),
-                f.student_name or "",
-                tipo_map.get(f.type, f.type),
-                assunto_map.get(f.subject, f.subject),
-                f.course_name or "",
-                f.class_name or "",
-                status_map.get(f.status, f.status),
-            ]
-        )
+        rows.append([
+            f.id,
+            f.created_at.strftime("%Y-%m-%d %H:%M"),
+            f.student_name or "",
+            tipo_map.get(f.type, f.type),
+            assunto_map.get(f.subject, f.subject),
+            f.course_name or "",
+            f.class_name or "",
+            status_map.get(f.status, f.status),
+        ])
 
     t2 = Table([headers] + rows, repeatRows=1)
-    t2.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
-                ("FONTSIZE", (0, 0), (-1, -1), 8),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
-            ]
-        )
-    )
+    t2.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+    ]))
     story.append(Paragraph("Detalhes (últimos 200)", styles["Heading3"]))
     story.append(t2)
 
@@ -399,16 +403,6 @@ def export_pdf(request):
 
 
 # ---- Monthly stats (JSON) ----
-def _month_bounds(ym: str):
-    """ym: 'YYYY-MM' → timezone-aware [start, end) for that month."""
-    y, m = map(int, ym.split("-"))
-    start_naive = datetime(y, m, 1)
-    end_naive = datetime(y + 1, 1, 1) if m == 12 else datetime(y, m + 1, 1)
-    start = timezone.make_aware(start_naive)
-    end = timezone.make_aware(end_naive)
-    return start, end
-
-
 @login_required
 @support_required
 def stats_summary(request):
@@ -416,12 +410,24 @@ def stats_summary(request):
     start, end = _month_bounds(month)
     qs = Feedback.objects.filter(created_at__gte=start, created_at__lt=end)
 
+    # average resolution time (hours) for resolved
+    qs_res = qs.filter(status="resolvido", resolved_at__isnull=False)
+    if qs_res.exists():
+        qs_res = qs_res.annotate(
+            dur=ExpressionWrapper(F("resolved_at") - F("created_at"), output_field=DurationField())
+        )
+        avg_dur = qs_res.aggregate(a=Avg("dur"))["a"]
+        avg_hours = round(avg_dur.total_seconds() / 3600, 1) if avg_dur else 0.0
+    else:
+        avg_hours = 0.0
+
     data = {
         "elogios": qs.filter(type="elogio").count(),
         "reclamacoes": qs.filter(type="reclamacao").count(),
         "sugestoes": qs.filter(type="sugestao").count(),
         "resolvidos": qs.filter(status="resolvido").count(),
         "total": qs.count(),
+        "avg_resolution_hours": avg_hours,
     }
     data["taxa_resolucao_pct"] = round(100 * data["resolvidos"] / data["total"], 1) if data["total"] else 0.0
     return JsonResponse(data)
@@ -434,14 +440,15 @@ def stats_breakdown(request):
     start, end = _month_bounds(month)
     qs = Feedback.objects.filter(created_at__gte=start, created_at__lt=end)
 
-    by_type = list(qs.values("type").annotate(n=Count("id")))
-    by_subject = list(qs.values("subject").annotate(n=Count("id")))
-    by_course = list(qs.values("course_name").annotate(n=Count("id")))
-    by_status = list(qs.values("status").annotate(n=Count("id")))
+    by_type     = list(qs.values("type").annotate(n=Count("id")))
+    by_subject  = list(qs.values("subject").annotate(n=Count("id")))
+    by_course   = list(qs.values("course_name").annotate(n=Count("id")))
+    by_status   = list(qs.values("status").annotate(n=Count("id")))
+    by_operator = list(qs.values("operator_name").annotate(n=Count("id")).order_by("-n")[:8])
 
-    label_type = dict(Feedback.TIPO_CHOICES)
+    label_type    = dict(Feedback.TIPO_CHOICES)
     label_subject = dict(Feedback.ASSUNTO_CHOICES)
-    label_status = dict(Feedback.STATUS_CHOICES)
+    label_status  = dict(Feedback.STATUS_CHOICES)
 
     def map_labels(rows, label_map, field):
         out = []
@@ -451,14 +458,62 @@ def stats_breakdown(request):
             out.append({"label": label, "value": r["n"]})
         return out
 
-    return JsonResponse(
+    return JsonResponse({
+        "type":     map_labels(by_type,    label_type,    "type"),
+        "subject":  map_labels(by_subject, label_subject, "subject"),
+        "status":   map_labels(by_status,  label_status,  "status"),
+        "course":   [{"label": r["course_name"] or "—", "value": r["n"]} for r in by_course],
+        "operator": [{"label": r["operator_name"] or "—", "value": r["n"]} for r in by_operator],
+    })
+
+
+@login_required
+@support_required
+def stats_timeseries(request):
+    """Daily totals vs resolved for selected month."""
+    month = request.GET.get("month") or timezone.now().strftime("%Y-%m")
+    start, end = _month_bounds(month)
+    qs = Feedback.objects.filter(created_at__gte=start, created_at__lt=end)
+
+    total_by_day = qs.annotate(d=TruncDate("created_at")).values("d").annotate(n=Count("id"))
+    resolved_by_day = qs.filter(status="resolvido").annotate(d=TruncDate("created_at")).values("d").annotate(n=Count("id"))
+
+    map_total = {row["d"].isoformat(): row["n"] for row in total_by_day}
+    map_res   = {row["d"].isoformat(): row["n"] for row in resolved_by_day}
+
+    labels, total, resolved, pending = [], [], [], []
+    cur = start.date()
+    while cur < end.date():
+        s = cur.isoformat()
+        t = map_total.get(s, 0)
+        r = map_res.get(s, 0)
+        p = max(t - r, 0)
+        labels.append(s)
+        total.append(t)
+        resolved.append(r)
+        pending.append(p)
+        cur = cur + timedelta(days=1)
+
+    return JsonResponse({"labels": labels, "total": total, "resolved": resolved, "pending": pending})
+
+
+@login_required
+@support_required
+def stats_recent(request):
+    """Last few feedbacks (compact for dashboard)."""
+    qs = Feedback.objects.order_by("-created_at")[:8]
+    data = [
         {
-            "type": map_labels(by_type, label_type, "type"),
-            "subject": map_labels(by_subject, label_subject, "subject"),
-            "status": map_labels(by_status, label_status, "status"),
-            "course": [{"label": r["course_name"] or "—", "value": r["n"]} for r in by_course],
+            "id": f.id,
+            "student": f.student_name,
+            "status": f.get_status_display(),
+            "status_key": f.status,
+            "subject": f.get_subject_display(),
+            "created": f.created_at.strftime("%Y-%m-%d %H:%M"),
         }
-    )
+        for f in qs
+    ]
+    return JsonResponse({"items": data})
 
 
 @login_required

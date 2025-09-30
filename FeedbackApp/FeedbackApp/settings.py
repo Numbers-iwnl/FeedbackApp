@@ -122,3 +122,40 @@ MEDIA_ROOT = Path(__file__).resolve().parent.parent / 'media'
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "feedback_list"
 LOGOUT_REDIRECT_URL = "login"
+
+# Upload policy
+MAX_ATTACHMENT_MB = 10
+ALLOWED_MIME_TYPES = {
+    "image/jpeg","image/png","image/gif",
+    "audio/mpeg","audio/wav","audio/x-wav","audio/mp4","audio/aac",
+    "application/pdf",
+}
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "feedback_list"
+LOGOUT_REDIRECT_URL = "login"
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "feedbackapp.log"),
+            "formatter": "verbose",
+        },
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {"handlers": ["console", "file"], "level": "INFO"},
+}
+

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Feedbacks{% endblock %}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        :root {
+            --green: #0b5;
+            --grey: #666;
+            --line: #eee;
+            --bg: #fafafa;
+            --red: #c33;
+            --blue: #1677ff;
+            --amber: #b7791f;
+        }
+
+        body {
+            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 16px;
+            background: #fff
+        }
+
+        header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px
+        }
+
+        .brand {
+            display: flex;
+            gap: 10px;
+            align-items: center
+        }
+
+            .brand img {
+                height: 28px;
+                width: auto
+            }
+
+            .brand .name {
+                font-weight: 700;
+                letter-spacing: .3px
+            }
+
+        nav a, .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: var(--green);
+            color: #fff;
+            text-decoration: none
+        }
+
+        nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .muted {
+            color: var(--grey)
+        }
+
+        .flash {
+            margin: 10px 0
+        }
+
+        .alert {
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin: 8px 0
+        }
+
+            .alert.success {
+                background: #e9f7ef;
+                color: #145a32;
+                border: 1px solid #cdebd7
+            }
+
+            .alert.error {
+                background: #fdecea;
+                color: #7b241c;
+                border: 1px solid #f5c6cb
+            }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: .85rem
+        }
+
+        .b-pendente {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #664d03
+        }
+
+        .b-analise {
+            background: #e7f0ff;
+            border: 1px solid #d0e2ff;
+            color: #0b3d91
+        }
+
+        .b-resolvido {
+            background: #e7f9ef;
+            border: 1px solid #c6f1d8;
+            color: #0f5132
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <!-- your logo here -->
+            <img src="https://dummyimage.com/80x28/000/fff&text=LOGO" alt="logo">
+            <div class="name">Painel de Feedbacks</div>
+        </div>
+        <nav>
+            <a href="/feedbacks/">Lista</a>
+            <a href="/feedbacks/novo/">Novo</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/export/csv/">CSV</a>
+            <a href="/export/xlsx/">Excel</a>
+            <a href="/logout/">Sair</a>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <div class="flash">
+        {% for m in messages %}
+        <div class="alert {{ m.tags|default:'info' }}">{{ m }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>

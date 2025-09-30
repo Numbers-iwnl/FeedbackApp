@@ -2,96 +2,231 @@
 <html lang="pt-br">
 <head>
     <meta charset="utf-8">
-    <title>Novo feedback</title>
+    <title>Novo Feedback</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-        body {
-            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
-            max-width: 860px;
-            margin: 24px auto;
-            padding: 0 16px
+        * {
+            box-sizing: border-box
         }
 
-        form .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        body {
+            margin: 0 auto;
+            padding: 16px;
+            max-width: 900px;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.45 system-ui, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        a {
+            color: #14b8a6;
+            text-decoration: none
+        }
+
+            a:hover {
+                text-decoration: underline
+            }
+
+        /* Page shell */
+        .page {
+            display: flex;
+            flex-direction: column;
             gap: 12px
         }
 
-        label {
+        .topbar {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin: 8px 0
+            align-items: center;
+            gap: 10px
         }
 
-        input, select, textarea {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 6px
-        }
-
-        button {
-            padding: 10px 16px;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #031322;
             border: 0;
-            border-radius: 8px;
-            background: #0b5;
-            color: #fff;
-            cursor: pointer
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none
         }
 
-        .ok {
-            background: #e6ffed;
-            border: 1px solid #b6f2c6;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px
+        .btn--ghost {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            border: 1px solid var(--line)
+        }
+
+        /* Form card with stronger contrast */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr 1fr
+        }
+
+        .grid-1 {
+            grid-template-columns: 1fr
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+
+        input[type="text"], select, textarea, input[type="file"] {
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px
+        }
+
+        /* Errors */
+        .errorlist {
+            margin: 6px 0 0 0;
+            padding-left: 18px;
+            color: #fee2e2
+        }
+
+            .errorlist li {
+                margin: 0
+            }
+
+        .field-error input, .field-error select, .field-error textarea {
+            border-color: #ef4444
+        }
+
+        /* Required asterisk */
+        .req::after {
+            content: " *";
+            color: #ef4444;
+            font-weight: 800
         }
     </style>
 </head>
 <body>
-    <h2>Novo feedback</h2>
 
-    {% if form.errors or form.non_field_errors %}
-    <div class="ok" style="background:#ffecec;border-color:#f5b5b5;color:#a40000">
-        <strong>Erros no formulário:</strong>
-        <ul>
-            {% for field, errors in form.errors.items %}
-            <li><b>{{ field }}:</b> {{ errors|join:", " }}</li>
-            {% endfor %}
-            {% for e in form.non_field_errors %}
-            <li>{{ e }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
+    {% include 'core/_header.html' with show_new_btn=False show_exports=False %}
 
-
-    {% if created_id %}
-    <div class="ok">Feedback #{{ created_id }} criado com sucesso.</div>
-    {% endif %}
-
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row">
-            <label>Nome do aluno* {{ form.student_name }}</label>
-            <label>Operador {{ form.operator_name }}</label>
+    <main class="page">
+        <div class="topbar">
+            <a class="btn btn--ghost" href="{% url 'feedback_list' %}">← Voltar</a>
+            <h2 style="margin:0">Novo Feedback</h2>
         </div>
 
-        <div class="row">
-            <label>Tipo* {{ form.type }}</label>
-            <label>Assunto* {{ form.subject }}</label>
-        </div>
+        <form method="post" enctype="multipart/form-data" class="card">
+            {% csrf_token %}
 
-        <div class="row">
-            <label>Curso {{ form.course_name }}</label>
-            <label>Turma {{ form.class_name }}</label>
-        </div>
+            <!-- Linha 1: Aluno (obrigatório) + Operador (auto) -->
+            <div class="grid">
+                <div class="{% if form.student_name.errors %}field-error{% endif %}">
+                    <label class="req" for="id_student_name">Nome do aluno</label>
+                    {{ form.student_name }}
+                    {{ form.student_name.errors }}
+                </div>
 
-        <label>Descrição {{ form.description }}</label>
-        <label>Anexos (prints/áudios) <input type="file" name="attachments" multiple></label>
+                <!-- Operador: readonly e auto-preenchido com o usuário logado -->
+                <div>
+                    <label for="id_operator_name">Operador responsável</label>
+                    <input type="text" id="id_operator_name" name="operator_name"
+                           value="{{ request.user.get_full_name|default:request.user.username }}"
+                           readonly>
+                    <p class="muted" style="margin:.4rem 0 0">Preenchido automaticamente conforme o usuário logado.</p>
+                </div>
+            </div>
 
-        <button type="submit">Salvar</button>
-    </form>
+            <!-- Linha 2: Tipo + Assunto -->
+            <div class="grid">
+                <div class="{% if form.type.errors %}field-error{% endif %}">
+                    <label class="req" for="id_type">Tipo de feedback</label>
+                    {{ form.type }}
+                    {{ form.type.errors }}
+                </div>
+
+                <div class="{% if form.subject.errors %}field-error{% endif %}">
+                    <label class="req" for="id_subject">Assunto</label>
+                    {{ form.subject }}
+                    {{ form.subject.errors }}
+                </div>
+            </div>
+
+            <!-- Linha 3: Curso + Turma -->
+            <div class="grid">
+                <div class="{% if form.course_name.errors %}field-error{% endif %}">
+                    <label for="id_course_name">Curso</label>
+                    {{ form.course_name }}
+                    {{ form.course_name.errors }}
+                </div>
+
+                <div class="{% if form.class_name.errors %}field-error{% endif %}">
+                    <label for="id_class_name">Turma</label>
+                    {{ form.class_name }}
+                    {{ form.class_name.errors }}
+                </div>
+            </div>
+
+            <!-- Descrição -->
+            <div class="grid grid-1">
+                <div class="{% if form.description.errors %}field-error{% endif %}">
+                    <label for="id_description">Descrição do feedback</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+
+            <!-- Anexos -->
+            <div class="grid grid-1">
+                <div class="{% if form.attachments.errors %}field-error{% endif %}">
+                    <label for="id_attachments">Anexos (prints ou áudios)</label>
+                    {{ form.attachments }}
+                    <p class="muted" style="margin:.4rem 0 0">Você pode selecionar vários arquivos.</p>
+                    {{ form.attachments.errors }}
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn btn--ghost" href="{% url 'feedback_list' %}">Cancelar</a>
+                <button class="btn" type="submit">Salvar</button>
+            </div>
+
+            <p class="muted" style="margin:.6rem 0 0">Campos marcados com <span style="color:#ef4444;font-weight:800">*</span> são obrigatórios. A data é registrada automaticamente.</p>
+        </form>
+    </main>
+
 </body>
 </html>

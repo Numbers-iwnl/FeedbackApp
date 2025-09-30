@@ -5,152 +5,581 @@
     <title>Feedbacks</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
+        /* Theme vars come from _header.html. This page only defines components. */
+        * {
+            box-sizing: border-box
+        }
+
         body {
-            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
-            max-width: 1100px;
-            margin: 24px auto;
-            padding: 0 16px
+            margin: 0 auto;
+            padding: 16px;
+            max-width: 1200px;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.45 system-ui, Segoe UI, Roboto, Arial, sans-serif;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse
+        a {
+            color: #14b8a6;
+            text-decoration: none
         }
 
-        th, td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            text-align: left
+            a:hover {
+                text-decoration: underline
+            }
+
+        .muted {
+            color: var(--muted)
         }
 
-        .top {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0;
-            flex-wrap: wrap
+        .grow {
+            flex: 1
         }
 
-        a.btn, button.btn {
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: #0b5;
-            color: #fff;
-            text-decoration: none;
-            border: 0;
-            cursor: pointer
-        }
-
+        /* Filters */
         .filters {
             display: grid;
-            grid-template-columns: repeat(6,minmax(140px,1fr));
-            gap: 8px;
-            margin: 10px 0
+            gap: 10px;
+            grid-template-columns: repeat(12,1fr);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 10px 0 18px;
+            /* lift filter block for more contrast */
+            box-shadow: 0 8px 20px color-mix(in srgb, var(--text) 8%, transparent);
         }
 
             .filters input, .filters select {
-                padding: 8px;
-                border: 1px solid #ddd;
-                border-radius: 8px
+                width: 100%;
+                background: var(--bg);
+                color: var(--text);
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 10px
             }
 
-        .pager {
+            .filters .w-3 {
+                grid-column: span 3
+            }
+
+            .filters .w-2 {
+                grid-column: span 2
+            }
+
+            .filters .w-4 {
+                grid-column: span 4
+            }
+
+            .filters .right {
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                align-items: center
+            }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #031322;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+        .btn--ghost {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            border: 1px solid var(--line)
+        }
+
+        /* Grid + Card with higher contrast (esp. light mode) */
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fill,minmax(340px,1fr))
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            /* strong but soft shadow to pop from background */
+            box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .sep {
+            height: 1px;
+            background: var(--line);
+            border-radius: 1px
+        }
+
+        /* Chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--chip);
+            color: var(--chip-txt);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .2px
+        }
+
+        .chip--pill {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            color: color-mix(in srgb, var(--text) 90%, var(--muted))
+        }
+
+        /* Type chips (solid for Reclamação to avoid faded look) */
+        .chip--elogio {
+            background: color-mix(in srgb, #10b981 22%, var(--chip));
+            color: #d1fae5
+        }
+
+        .chip--sugestao {
+            background: color-mix(in srgb, #6366f1 22%, var(--chip));
+            color: #e0e7ff
+        }
+
+        .chip--reclamacao {
+            background: #ef4444;
+            color: #fee2e2;
+            border: 1px solid color-mix(in srgb, #ef4444 60%, var(--line))
+        }
+
+        /* Subject chips */
+        .chip--financeiro {
+            background: color-mix(in srgb, #06b6d4 25%, var(--chip));
+        }
+
+        .chip--atendimento {
+            background: color-mix(in srgb, #f97316 25%, var(--chip));
+        }
+
+        .chip--plataforma {
+            background: color-mix(in srgb, #8b5cf6 25%, var(--chip));
+        }
+
+        .chip--conteudo {
+            background: color-mix(in srgb, #22c55e 25%, var(--chip));
+        }
+
+        .chip--eventos {
+            background: color-mix(in srgb, #ef4444 25%, var(--chip));
+        }
+
+        .chip--outros {
+            background: color-mix(in srgb, #64748b 25%, var(--chip));
+        }
+
+        /* Status chips */
+        .status {
+            margin-left: auto
+        }
+
+        .status--pendente {
+            background: color-mix(in srgb, #f59e0b 30%, var(--chip));
+            color: #111827
+        }
+
+        .status--em_analise {
+            background: color-mix(in srgb, #3b82f6 30%, var(--chip));
+        }
+
+        .status--resolvido {
+            background: color-mix(in srgb, #16a34a 30%, var(--chip));
+        }
+
+        /* Actions */
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end
+        }
+
+        .btn-mini {
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            color: color-mix(in srgb, var(--text) 90%, var(--muted));
+            cursor: pointer
+        }
+
+        .btn-mini--ok {
+            background: #0d3b2e;
+            border-color: #10b981;
+            color: #d1fae5
+        }
+
+        .btn-mini:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        /* Pagination */
+        .pagination {
             display: flex;
             gap: 8px;
             align-items: center;
-            margin-top: 12px
+            justify-content: center;
+            margin: 18px 0
         }
 
-        .muted {
-            color: #666
+        .page {
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            border: 1px solid var(--line);
+            color: var(--text)
         }
+
+        .page--active {
+            font-weight: 800
+        }
+
+        /* Modal + toast (unchanged) */
+        .modal-back {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 30
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            max-width: 520px;
+            width: 92%;
+            padding: 12px;
+            box-shadow: 0 16px 40px rgba(0,0,0,.35)
+        }
+
+            .modal .row {
+                justify-content: space-between
+            }
+
+            .modal textarea {
+                width: 100%;
+                min-height: 120px;
+                background: var(--bg);
+                color: var(--text);
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                padding: 10px
+            }
+
+            .modal .actions {
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                margin-top: 10px
+            }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            background: #0a1a2e;
+            border: 1px solid #18324e;
+            color: #dbe7f3;
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: none;
+            z-index: 40
+        }
+
+            .toast.ok {
+                border-color: #065f46;
+                background: #052e2b;
+                color: #d1fae5
+            }
+
+            .toast.warn {
+                border-color: #92400e;
+                background: #2f2612;
+                color: #fff7ed
+            }
     </style>
 </head>
 <body>
-    <div class="top">
-        <h2>Feedbacks</h2>
-        <div style="margin-left:auto;display:flex;gap:8px">
-            <a class="btn" href="/dashboard/">Dashboard</a>
-            <a class="btn" href="/export/csv/{% if querystring %}?{{ querystring }}{% endif %}">Exportar CSV</a>
-            <a class="btn" href="/export/xlsx/{% if querystring %}?{{ querystring }}{% endif %}">Exportar Excel</a>
-            <a class="btn" href="/feedbacks/novo/">Novo feedback</a>
-            <a class="btn" href="/logout/">Sair</a>
-        </div>
-    </div>
 
-    <!-- filtros -->
+    {% include 'core/_header.html' %}
+
+    <!-- hidden csrf (for AJAX) -->
+    <form id="csrf-form" style="display:none">{% csrf_token %}</form>
+
+    <!-- Filters -->
     <form method="get" class="filters">
-        <input name="aluno" value="{{ aluno }}" placeholder="Filtrar por aluno">
-        <input name="operador" value="{{ operador }}" placeholder="Filtrar por operador">
-        <input name="curso" value="{{ curso }}" placeholder="Filtrar por curso">
+        <div class="w-3"><input name="aluno" placeholder="Filtrar por aluno" value="{{ aluno }}"></div>
+        <div class="w-3"><input name="operador" placeholder="Filtrar por operador" value="{{ operador }}"></div>
+        <div class="w-3"><input name="curso" placeholder="Filtrar por curso" value="{{ curso }}"></div>
 
-        <select name="tipo">
-            <option value="">Todos os tipos</option>
-            {% for k, v in tipo_choices %}
-            <option value="{{ k }}" {% if tipo == k %} selected{% endif %}>{{ v }}</option>
-            {% endfor %}
-        </select>
+        <div class="w-3">
+            <select name="tipo" aria-label="Filtrar por tipo">
+                <option value="">Todos os tipos</option>
+                {% for k,v in tipo_choices %}
+                <option value="{{ k }}" {% if tipo == k %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <select name="status">
-            <option value="">Todos os status</option>
-            {% for k, v in status_choices %}
-            <option value="{{ k }}" {% if status == k %} selected{% endif %}>{{ v }}</option>
-            {% endfor %}
-        </select>
+        <div class="w-3">
+            <select name="assunto" aria-label="Filtrar por assunto">
+                <option value="">Todos os assuntos</option>
+                {% for k,v in assunto_choices %}
+                <option value="{{ k }}" {% if assunto == k %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <div></div>
+        <div class="w-3">
+            <select name="status" aria-label="Filtrar por status">
+                <option value="">Todos os status</option>
+                {% for k,v in status_choices %}
+                <option value="{{ k }}" {% if status == k %}selected{% endif %}>{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <input type="date" name="de" value="{{ de }}" title="De">
-        <input type="date" name="ate" value="{{ ate }}" title="Até">
-        <div style="grid-column: span 4; display:flex; gap:8px;">
+        <div class="w-2"><input type="date" name="de" value="{{ de }}" placeholder="De"></div>
+        <div class="w-2"><input type="date" name="ate" value="{{ ate }}" placeholder="Até"></div>
+
+        <div class="w-4 right">
             <button class="btn" type="submit">Aplicar</button>
-            <a class="btn" href="/feedbacks/">Limpar</a>
-            <span class="muted">Exibindo {{ items|length }} de {{ paginator.count }} (pág. {{ page_obj.number }} / {{ paginator.num_pages }})</span>
+            <a class="btn btn--ghost" href="{% url 'feedback_list' %}">Limpar</a>
         </div>
     </form>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Data</th>
-                <th>Aluno</th>
-                <th>Tipo</th>
-                <th>Assunto</th>
-                <th>Curso/Turma</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for f in items %}
-            <tr>
-                <td><a href="/feedbacks/{{ f.id }}/">#{{ f.id }}</a></td>
-                <td>{{ f.created_at|date:"Y-m-d H:i" }}</td>
-                <td>{{ f.student_name }}</td>
-                <td>{{ f.get_type_display }}</td>
-                <td>{{ f.get_subject_display }}</td>
-                <td>{{ f.course_name|default:"None" }} / {{ f.class_name|default:"None" }}</td>
-                <td>{{ f.get_status_display }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">Sem resultados.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Cards grid -->
+    <div class="grid">
+        {% for f in items %}
+        <article class="card {% if f.status == 'resolvido' %}dim-resolved{% endif %}" id="card-{{ f.id }}">
+            <div class="row">
+                <a href="{% url 'feedback_detail' f.id %}" class="chip">#{{ f.id }}</a>
+                <!-- dd/mm/aaaa HH:mm -->
+                <span class="muted">{{ f.created_at|date:"d/m/Y H:i" }}</span>
+                <span class="chip chip--pill" title="Anexos">📎 {{ f.attachments.count }}</span>
 
-    {% if paginator.num_pages > 1 %}
-    <div class="pager">
+                <span id="status-{{ f.id }}" class="chip status
+                    {% if f.status == 'resolvido' %} status--resolvido
+                    {% elif f.status == 'em_analise' %} status--em_analise
+                    {% else %} status--pendente {% endif %}">
+                    {{ f.get_status_display }}
+                </span>
+            </div>
+
+            <div class="row">
+                <div class="grow"><strong>{{ f.student_name }}</strong></div>
+                <div class="muted">Operador: {{ f.operator_name|default:"—" }}</div>
+            </div>
+
+            <div class="row">
+                <span class="chip
+                    {% if f.type == 'elogio' %}chip--elogio{% elif f.type == 'sugestao' %}chip--sugestao{% else %}chip--reclamacao{% endif %}">
+                    {{ f.get_type_display }}
+                </span>
+
+                <span class="chip
+                    {% if f.subject == 'financeiro' %}chip--financeiro
+                    {% elif f.subject == 'atendimento' %}chip--atendimento
+                    {% elif f.subject == 'plataforma' %}chip--plataforma
+                    {% elif f.subject == 'conteudo' %}chip--conteudo
+                    {% elif f.subject == 'eventos' %}chip--eventos
+                    {% else %}chip--outros{% endif %}">
+                    {{ f.get_subject_display }}
+                </span>
+
+                <span class="muted">Curso: {{ f.course_name|default:"—" }} · Turma: {{ f.class_name|default:"—" }}</span>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="row">
+                <span class="muted">{{ f.description|default:""|truncatechars:120 }}</span>
+                <span class="grow"></span>
+
+                <div class="card-actions">
+                    {% if f.status != 'resolvido' %}
+                    <button class="btn-mini btn-mini--ok" data-resolve="{{ f.id }}">Marcar como resolvido</button>
+                    {% endif %}
+                    <button class="btn-mini" data-comment="{{ f.id }}">Comentar</button>
+                    <a class="btn btn--ghost" href="{% url 'feedback_detail' f.id %}">Ver</a>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p class="muted">Sem resultados para os filtros informados.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj %}
+    <div class="pagination">
         {% if page_obj.has_previous %}
-        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page=1">« Primeiro</a>
-        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page_obj.previous_page_number }}">‹ Anterior</a>
+        <a class="page" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">‹ Anterior</a>
         {% endif %}
-        <span class="muted">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+        <span class="page page--active">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ page_obj.next_page_number }}">Próxima ›</a>
-        <a class="btn" href="?{{ querystring }}{% if querystring %}&{% endif %}page={{ paginator.num_pages }}">Última »</a>
+        <a class="page" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Próxima ›</a>
         {% endif %}
     </div>
     {% endif %}
+
+    <!-- Comment modal -->
+    <div class="modal-back" id="modal-back">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+            <div class="row">
+                <h3 id="m-title" style="margin:0">Adicionar comentário</h3>
+                <button class="btn-mini" id="m-close">Fechar</button>
+            </div>
+            <p class="muted" id="m-sub" style="margin:0 0 8px"></p>
+            <textarea id="m-text" placeholder="Escreva o comentário..."></textarea>
+            <div class="actions">
+                <button class="btn btn--ghost" id="m-cancel">Cancelar</button>
+                <button class="btn" id="m-save">Salvar comentário</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function () {
+            const getCSRF = () => {
+                const el = document.querySelector('#csrf-form input[name=csrfmiddlewaretoken]');
+                return el ? el.value : '';
+            };
+            const toast = (msg, kind = 'ok') => {
+                const t = document.getElementById('toast');
+                t.className = 'toast ' + kind;
+                t.textContent = msg;
+                t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 2500);
+            };
+
+            // Resolve handler
+            document.querySelectorAll('[data-resolve]').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const id = btn.getAttribute('data-resolve');
+                    btn.disabled = true;
+
+                    const fd = new FormData();
+                    fd.append('action', 'status');
+                    fd.append('status', 'resolvido');
+
+                    const resp = await fetch(`/feedbacks/${id}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCSRF() },
+                        body: fd,
+                        credentials: 'same-origin'
+                    });
+
+                    if (resp.ok) {
+                        // update chip + fade card
+                        const chip = document.getElementById(`status-${id}`);
+                        if (chip) {
+                            chip.textContent = 'Resolvido';
+                            chip.classList.remove('status--pendente', 'status--em_analise');
+                            chip.classList.add('status--resolvido');
+                        }
+                        const card = document.getElementById(`card-${id}`);
+                        card?.classList.add('dim-resolved');
+
+                        // hide the "resolve" button
+                        btn.parentElement.removeChild(btn);
+                        toast(`Comentário de status adicionado ao #${id}.`, 'ok');
+                    } else {
+                        btn.disabled = false;
+                        toast('Falha ao atualizar status.', 'warn');
+                    }
+                });
+            });
+
+            // Comment modal logic
+            const modalBack = document.getElementById('modal-back');
+            const mClose = document.getElementById('m-close');
+            const mCancel = document.getElementById('m-cancel');
+            const mSave = document.getElementById('m-save');
+            const mText = document.getElementById('m-text');
+            const mSub = document.getElementById('m-sub');
+            let currentId = null;
+
+            const openModal = (id) => {
+                currentId = id;
+                mText.value = '';
+                mSub.textContent = `Feedback #${id}`;
+                modalBack.style.display = 'flex';
+                setTimeout(() => mText.focus(), 50);
+            };
+            const closeModal = () => {
+                modalBack.style.display = 'none';
+                currentId = null;
+            };
+
+            document.querySelectorAll('[data-comment]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = btn.getAttribute('data-comment');
+                    openModal(id);
+                });
+            });
+
+            [mClose, mCancel].forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
+
+            mSave.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const text = mText.value.trim();
+                if (!currentId || !text) { toast('Escreva um comentário.', 'warn'); return; }
+
+                const fd = new FormData();
+                fd.append('action', 'comment');
+                fd.append('comment_text', text);
+
+                const resp = await fetch(`/feedbacks/${currentId}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCSRF() },
+                    body: fd,
+                    credentials: 'same-origin'
+                });
+
+                if (resp.ok) {
+                    toast(`Comentário adicionado ao #${currentId}.`, 'ok');
+                    closeModal();
+                } else {
+                    toast('Falha ao adicionar comentário.', 'warn');
+                }
+            });
+
+            // Close modal on backdrop click
+            modalBack.addEventListener('click', (e) => { if (e.target === modalBack) closeModal(); });
+        })();
+    </script>
 </body>
 </html>

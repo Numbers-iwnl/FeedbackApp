@@ -5,119 +5,401 @@
     <title>Feedback #{{ fb.id }}</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
+        * {
+            box-sizing: border-box
+        }
+
         body {
-            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
-            max-width: 900px;
-            margin: 24px auto;
-            padding: 0 16px
+            margin: 0 auto;
+            padding: 16px;
+            max-width: 1000px;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.45 system-ui, Segoe UI, Roboto, Arial, sans-serif;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px
-        }
-
-        .box {
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 12px 0
-        }
-
-        a.btn {
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: #0b5;
-            color: #fff;
+        a {
+            color: #14b8a6;
             text-decoration: none
         }
 
-        ul {
-            padding-left: 18px
+            a:hover {
+                text-decoration: underline
+            }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .grow {
+            flex: 1
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #031322;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+        .btn--ghost {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            border: 1px solid var(--line)
         }
 
         .row {
             display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+            margin: 12px 0;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr 1fr
+        }
+
+        .grid-1 {
+            grid-template-columns: 1fr
+        }
+
+        .sep {
+            height: 1px;
+            background: var(--line);
+            border-radius: 1px;
+            margin: 8px 0
+        }
+
+        /* Chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: var(--chip);
+            color: var(--chip-txt);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .2px
+        }
+
+        .chip--pill {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            color: color-mix(in srgb, var(--text) 90%, var(--muted))
+        }
+
+        .chip--elogio {
+            background: color-mix(in srgb, #10b981 22%, var(--chip));
+            color: #d1fae5
+        }
+
+        .chip--sugestao {
+            background: color-mix(in srgb, #6366f1 22%, var(--chip));
+            color: #e0e7ff
+        }
+
+        .chip--reclamacao {
+            background: #ef4444;
+            color: #fee2e2;
+            border: 1px solid color-mix(in srgb, #ef4444 60%, var(--line))
+        }
+
+        .chip--financeiro {
+            background: color-mix(in srgb, #06b6d4 25%, var(--chip));
+        }
+
+        .chip--atendimento {
+            background: color-mix(in srgb, #f97316 25%, var(--chip));
+        }
+
+        .chip--plataforma {
+            background: color-mix(in srgb, #8b5cf6 25%, var(--chip));
+        }
+
+        .chip--conteudo {
+            background: color-mix(in srgb, #22c55e 25%, var(--chip));
+        }
+
+        .chip--eventos {
+            background: color-mix(in srgb, #ef4444 25%, var(--chip));
+        }
+
+        .chip--outros {
+            background: color-mix(in srgb, #64748b 25%, var(--chip));
+        }
+
+        /* Status */
+        .status {
+            margin-left: auto
+        }
+
+        .status--pendente {
+            background: color-mix(in srgb, #f59e0b 30%, var(--chip));
+            color: #111827
+        }
+
+        .status--em_analise {
+            background: color-mix(in srgb, #3b82f6 30%, var(--chip));
+        }
+
+        .status--resolvido {
+            background: color-mix(in srgb, #16a34a 30%, var(--chip));
+        }
+
+        /* Forms */
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+
+        select, textarea, input[type="text"] {
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px
+        }
+
+        /* Attachments */
+        .files {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fill,minmax(220px,1fr))
+        }
+
+        .file {
+            background: var(--bg);
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .thumb {
+            max-height: 140px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #0001
+        }
+
+        /* Timeline */
+        .timeline {
+            display: grid;
+            gap: 10px
+        }
+
+        .tl-item {
+            display: flex;
+            gap: 10px
+        }
+
+        .tl-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: var(--primary);
+            margin-top: 6px
+        }
+
+        .tl-card {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px
+        }
+
+        .tl-meta {
+            display: flex;
             gap: 8px;
             align-items: center;
-            flex-wrap: wrap
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px
         }
     </style>
 </head>
 <body>
-    <p><a class="btn" href="/feedbacks/">← Voltar</a></p>
-    <h2>Feedback #{{ fb.id }}</h2>
 
-    <div class="grid">
-        <div><b>Aluno:</b> {{ fb.student_name }}</div>
-        <div><b>Operador:</b> {{ fb.operator_name|default:"—" }}</div>
-        <div><b>Tipo:</b> {{ fb.get_type_display }}</div>
-        <div><b>Assunto:</b> {{ fb.get_subject_display }}</div>
-        <div><b>Curso:</b> {{ fb.course_name|default:"—" }}</div>
-        <div><b>Turma:</b> {{ fb.class_name|default:"—" }}</div>
-        <div><b>Status atual:</b> {{ fb.get_status_display }}</div>
-        <div><b>Data:</b> {{ fb.created_at|date:"Y-m-d H:i" }}</div>
-        {% if fb.resolved_at %}
-        <div><b>Resolvido em:</b> {{ fb.resolved_at|date:"Y-m-d H:i" }}</div>
-        {% endif %}
+    {# Hide exports on this page #}
+    {% include 'core/_header.html' with show_exports=False %}
+
+    <p><a class="btn btn--ghost" href="{% url 'feedback_list' %}">← Voltar</a></p>
+
+    <!-- Header block -->
+    <div class="card">
+        <div class="row">
+            <h2 style="margin:0">Feedback #{{ fb.id }}</h2>
+            <span class="chip chip--pill">Criado em: {{ fb.created_at|date:"d/m/Y H:i" }}</span>
+            {% if fb.resolved_at %}
+            <span class="chip chip--pill">Resolvido em: {{ fb.resolved_at|date:"d/m/Y H:i" }}</span>
+            {% endif %}
+
+            <span class="chip status
+        {% if fb.status == 'resolvido' %} status--resolvido
+        {% elif fb.status == 'em_analise' %} status--em_analise
+        {% else %} status--pendente {% endif %}">
+                {{ fb.get_status_display }}
+            </span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="grid">
+            <div><b>Aluno:</b> {{ fb.student_name }}</div>
+            <div><b>Operador:</b> {{ fb.operator_name|default:"—" }}</div>
+            <div>
+                <b>Tipo:</b>
+                <span class="chip
+          {% if fb.type == 'elogio' %}chip--elogio
+          {% elif fb.type == 'sugestao' %}chip--sugestao
+          {% else %}chip--reclamacao{% endif %}">
+                    {{ fb.get_type_display }}
+                </span>
+            </div>
+            <div>
+                <b>Assunto:</b>
+                <span class="chip
+          {% if fb.subject == 'financeiro' %}chip--financeiro
+          {% elif fb.subject == 'atendimento' %}chip--atendimento
+          {% elif fb.subject == 'plataforma' %}chip--plataforma
+          {% elif fb.subject == 'conteudo' %}chip--conteudo
+          {% elif fb.subject == 'eventos' %}chip--eventos
+          {% else %}chip--outros{% endif %}">
+                    {{ fb.get_subject_display }}
+                </span>
+            </div>
+            <div><b>Curso:</b> {{ fb.course_name|default:"—" }}</div>
+            <div><b>Turma:</b> {{ fb.class_name|default:"—" }}</div>
+        </div>
     </div>
 
-    <div class="box">
-        <b>Atualizar status</b>
-        <form method="post" class="row" style="margin-top:8px">
+    <!-- Atualizar status -->
+    <div class="card">
+        <div class="row" style="justify-content:space-between">
+            <b>Atualizar status</b>
+        </div>
+        <form method="post" class="row" style="gap:10px; margin-top:8px">
             {% csrf_token %}
             <input type="hidden" name="action" value="status">
             {{ form_status.status }}
-            <button type="submit">Salvar status</button>
+            <button type="submit" class="btn">Salvar status</button>
         </form>
     </div>
 
-    <div class="box">
+    <!-- Descrição -->
+    <div class="card">
         <b>Descrição</b>
-        <p>{{ fb.description|linebreaks|default:"(sem descrição)" }}</p>
+        <p class="muted" style="margin:.4rem 0 0">
+            {{ fb.description|linebreaks|default:"(sem descrição)" }}
+        </p>
     </div>
 
-    <div class="box">
-        <b>Anexos</b>
-        <ul>
+    <!-- Anexos -->
+    <div class="card">
+        <div class="row" style="justify-content:space-between">
+            <b>Anexos</b>
+            <span class="muted">Total: {{ fb.attachments.count }}</span>
+        </div>
+        <div class="files">
             {% for a in fb.attachments.all %}
-            <li>
-                <a href="{{ a.file.url }}" target="_blank">{{ a.file.name|default:"arquivo" }}</a>
-                {% if a.mime_type and a.mime_type|slice:":5" == "audio" %}
-                <br><audio controls src="{{ a.file.url }}"></audio>
+            <div class="file">
+                {% if a.mime_type and a.mime_type|slice:":5" == "image" %}
+                <img class="thumb" src="{{ a.file.url }}" alt="Imagem do anexo">
+                {% elif a.mime_type and a.mime_type|slice:":5" == "audio" %}
+                <audio controls src="{{ a.file.url }}"></audio>
+                {% else %}
+                <div class="muted">Arquivo</div>
                 {% endif %}
-            </li>
+                <a href="{{ a.file.url }}" target="_blank" download>{{ a.file.name|default:"arquivo" }}</a>
+            </div>
             {% empty %}
-            <li>Nenhum anexo.</li>
+            <p class="muted">Nenhum anexo.</p>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 
-    <div class="box">
-        <b>Comentários do suporte</b>
-        <ul>
-            {% for c in fb.comments.all %}
-            <li>
-                <b>{{ c.author_name|default:"Suporte" }}</b>
-                <small>— {{ c.created_at|date:"Y-m-d H:i" }}</small><br>
-                {{ c.comment_text }}
-            </li>
-            {% empty %}
-            <li>Nenhum comentário ainda.</li>
-            {% endfor %}
-        </ul>
+    <!-- Comentários -->
+    <div class="card">
+        <div class="row" style="justify-content:space-between">
+            <b>Comentários do suporte</b>
+            <span class="muted">{{ fb.comments.count }} comentário(s)</span>
+        </div>
 
-        <form method="post" style="margin-top:12px">
+        <!-- Timeline -->
+        <div class="timeline" style="margin-top:8px">
+            {% for c in fb.comments.all %}
+            <div class="tl-item">
+                <div class="tl-dot"></div>
+                <div class="tl-card">
+                    <div class="tl-meta">
+                        <strong>{{ c.author_name|default:"Suporte" }}</strong>
+                        <span>•</span>
+                        <span>{{ c.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div>{{ c.comment_text|linebreaks }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="muted">Sem comentários ainda.</p>
+            {% endfor %}
+        </div>
+
+        <div class="sep"></div>
+
+        <!-- Add comment -->
+        <form method="post" class="grid grid-1">
             {% csrf_token %}
             <input type="hidden" name="action" value="comment">
-            <div class="row" style="margin:8px 0">
-                <input name="author_name" placeholder="Seu nome (opcional)" style="flex:1;min-width:180px;padding:8px;border:1px solid #ddd;border-radius:8px">
-                <input name="comment_text" placeholder="Adicionar comentário..." required
-                       style="flex:3;min-width:260px;padding:8px;border:1px solid #ddd;border-radius:8px">
+            <input type="hidden" name="author_name" value="{{ request.user.get_full_name|default:request.user.username }}">
+            <div>
+                <label for="id_comment_text">Adicionar comentário</label>
+                <textarea id="id_comment_text" name="comment_text" placeholder="Escreva o comentário..."></textarea>
             </div>
-            <button type="submit">Adicionar comentário</button>
+            <div class="actions">
+                <button class="btn btn--ghost" type="reset">Limpar</button>
+                <button class="btn" type="submit">Salvar comentário</button>
+            </div>
         </form>
     </div>
+
 </body>
 </html>

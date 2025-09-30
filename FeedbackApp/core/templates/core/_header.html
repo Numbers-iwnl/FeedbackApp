@@ -1,0 +1,278 @@
+﻿{% load static %}
+{% now "Y-m" as current_ym %}
+<!-- Global Header Partial + Theme Toggle (supports show_new_btn/show_exports flags) -->
+<style>
+    /* ===== Theme variables ===== */
+    :root {
+        /* Dark (default) */
+        --bg: #0b1220;
+        --card: #101827;
+        --muted: #8ea0b6;
+        --text: #e6edf5;
+        --line: #1f2a3b;
+        /* teal primary */
+        --primary: #14b8a6;
+        --ok: #16a34a;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+        --chip: #1f2a3b;
+        --chip-txt: #dbe7f3;
+    }
+
+    html[data-theme="light"] {
+        /* Light overrides */
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --muted: #566074;
+        --text: #0f172a;
+        --line: #d7dbe3;
+        --primary: #0f766e;
+        --ok: #15803d;
+        --warn: #b45309;
+        --danger: #b91c1c;
+        --chip: #eef2f7;
+        --chip-txt: #0f172a;
+    }
+
+    /* Utility: fade resolved items on list cards */
+    .dim-resolved {
+        opacity: .6;
+        filter: saturate(.85);
+    }
+
+    /* ===== Header styling ===== */
+    .gh {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 98%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(6px);
+        padding: 10px 0 6px;
+        margin: -10px 0 10px;
+    }
+
+    .gh__row {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px
+    }
+
+    .gh__brand {
+        display: flex;
+        align-items: center;
+        gap: 12px
+    }
+
+    .gh__logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: color-mix(in srgb, var(--card) 70%, var(--bg));
+        border: 1px solid var(--line);
+        color: color-mix(in srgb, var(--text) 90%, var(--muted));
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-weight: 800
+    }
+
+    .gh__nav {
+        display: flex;
+        gap: 8px
+    }
+
+        .gh__nav a {
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid transparent
+        }
+
+            .gh__nav a:hover {
+                border-color: var(--line);
+                background: color-mix(in srgb, var(--card) 70%, var(--bg))
+            }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary);
+        color: #031322;
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none
+    }
+
+    .btn--ghost {
+        background: color-mix(in srgb, var(--card) 70%, var(--bg));
+        color: color-mix(in srgb, var(--text) 85%, var(--muted));
+        border: 1px solid var(--line)
+    }
+
+    .gh__right {
+        display: flex;
+        align-items: center;
+        gap: 10px
+    }
+
+    .gh__user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: color-mix(in srgb, var(--text) 90%, var(--muted))
+    }
+
+    .gh__sub {
+        max-width: 1200px;
+        margin: 0 auto 10px;
+        padding: 0 16px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap
+    }
+
+        .gh__sub .link {
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            text-decoration: none;
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            border: 1px solid var(--line);
+            padding: 6px 10px;
+            border-radius: 10px
+        }
+
+            .gh__sub .link:hover {
+                background: color-mix(in srgb, var(--card) 60%, var(--bg))
+            }
+
+    .gh__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--line);
+        background: color-mix(in srgb, var(--card) 70%, var(--bg));
+        color: color-mix(in srgb, var(--text) 90%, var(--muted));
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer
+    }
+
+        .gh__toggle:hover {
+            background: color-mix(in srgb, var(--card) 60%, var(--bg))
+        }
+
+    /* flash messages */
+    .gh__messages {
+        max-width: 1200px;
+        margin: 0 auto 12px;
+        padding: 0 16px;
+        display: grid;
+        gap: 8px
+    }
+
+    .gh__msg {
+        border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--line));
+        background: color-mix(in srgb, var(--primary) 10%, var(--bg));
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 10px
+    }
+
+        .gh__msg.success {
+            border-color: color-mix(in srgb, var(--ok) 50%, var(--line));
+            background: color-mix(in srgb, var(--ok) 14%, var(--bg))
+        }
+
+        .gh__msg.warning {
+            border-color: color-mix(in srgb, var(--warn) 50%, var(--line));
+            background: color-mix(in srgb, var(--warn) 14%, var(--bg))
+        }
+
+        .gh__msg.error {
+            border-color: color-mix(in srgb, var(--danger) 50%, var(--line));
+            background: color-mix(in srgb, var(--danger) 14%, var(--bg))
+        }
+
+    @media (max-width:720px) {
+        .gh__nav {
+            display: none
+        }
+    }
+</style>
+
+<header class="gh">
+    <div class="gh__row">
+        <div class="gh__brand">
+            <a class="gh__logo" href="{% url 'feedback_list' %}">🎓 Feedbacks</a>
+            <nav class="gh__nav" aria-label="Navegação">
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                {% if show_new_btn != False %}
+                <a href="{% url 'feedback_create' %}" class="btn">Novo Feedback</a>
+                {% endif %}
+            </nav>
+        </div>
+
+        <div class="gh__right">
+            <button id="gh-toggle" class="gh__toggle" type="button" aria-label="Alternar tema">☀️ Modo claro</button>
+
+            <div class="gh__user">
+                <span>👤 {{ request.user.get_full_name|default:request.user.username }}</span>
+                <a class="btn btn--ghost" href="{% url 'logout' %}">Sair</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+{% if show_exports != False %}
+<div class="gh__sub">
+    <a class="link" href="{% url 'export_csv' %}">Exportar CSV</a>
+    <a class="link" href="{% url 'export_excel' %}">Exportar XLSX</a>
+    <a class="link" href="{% url 'export_pdf' %}?month={{ current_ym }}">Resumo PDF ({{ current_ym }})</a>
+    {% if request.user.is_superuser %}
+    <a class="link" href="{% url 'admin:index' %}">Admin</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if messages %}
+<div class="gh__messages">
+    {% for m in messages %}
+    <div class="gh__msg {% if m.tags %}{{ m.tags }}{% endif %}">{{ m }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+    // Theme toggle with localStorage (default = dark)
+    (function () {
+        const root = document.documentElement;
+        const key = 'ui-theme';
+        const btn = document.getElementById('gh-toggle');
+
+        const saved = localStorage.getItem(key);
+        const initial = saved || 'dark';
+        root.setAttribute('data-theme', initial);
+
+        const updateLabel = () => {
+            const isLight = root.getAttribute('data-theme') === 'light';
+            if (btn) btn.textContent = isLight ? '🌙 Modo escuro' : '☀️ Modo claro';
+        };
+        updateLabel();
+
+        btn?.addEventListener('click', () => {
+            const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem(key, next);
+            updateLabel();
+        });
+    })();
+</script>

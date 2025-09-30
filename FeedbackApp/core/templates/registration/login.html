@@ -1,61 +1,278 @@
 ﻿<!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="dark">
 <head>
     <meta charset="utf-8">
-    <title>Entrar</title>
+    <title>Entrar • Feedbacks</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
+        :root {
+            /* Dark (default) */
+            --bg: #0b1220;
+            --card: #101827;
+            --muted: #8ea0b6;
+            --text: #e6edf5;
+            --line: #1f2a3b;
+            --primary: #14b8a6;
+            --ok: #16a34a;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --chip: #1f2a3b;
+            --chip-txt: #dbe7f3;
+        }
+
+        html[data-theme="light"] {
+            --bg: #f6f7fb;
+            --card: #ffffff;
+            --muted: #566074;
+            --text: #0f172a;
+            --line: #d7dbe3;
+            --primary: #0f766e;
+            --ok: #15803d;
+            --warn: #b45309;
+            --danger: #b91c1c;
+            --chip: #eef2f7;
+            --chip-txt: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
         body {
-            font-family: system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            margin: 0;
+            min-height: 100svh;
+            background: radial-gradient(1200px 1200px at 80% -10%, #14b8a60f, transparent 60%), var(--bg);
+            color: var(--text);
+            font: 15px/1.45 system-ui, Segoe UI, Roboto, Arial, sans-serif;
             display: grid;
             place-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #f7f7f7
+            padding: 24px;
         }
 
-        .card {
-            background: #fff;
-            padding: 24px 28px;
+        a {
+            color: #14b8a6;
+            text-decoration: none
+        }
+
+            a:hover {
+                text-decoration: underline
+            }
+
+        .wrap {
+            width: 100%;
+            max-width: 420px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px
+        }
+
+        .logo {
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            border: 1px solid var(--line);
+            color: color-mix(in srgb, var(--text) 90%, var(--muted));
+            padding: 8px 12px;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,.08);
-            min-width: 320px
+            font-weight: 800;
+            text-decoration: none
         }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin: 6px 0 12px
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            border: 0;
-            border-radius: 8px;
-            background: #0b5;
-            color: #fff;
+        .toggle {
+            border: 1px solid var(--line);
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 90%, var(--muted));
+            padding: 8px 10px;
+            border-radius: 10px;
             cursor: pointer
         }
 
-        .err {
-            color: #b00;
-            margin-bottom: 8px
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 22px
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin: 10px 0 6px
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #031322;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+        .btn--ghost {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            border: 1px solid var(--line)
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px
+        }
+
+        /* Errors */
+        .errorlist {
+            margin: 6px 0 0 0;
+            padding-left: 18px;
+            color: #fee2e2
+        }
+
+            .errorlist li {
+                margin: 0
+            }
+
+        .field-error input {
+            border-color: #ef4444
+        }
+
+        .alert {
+            border: 1px solid color-mix(in srgb, var(--danger) 50%, var(--line));
+            background: color-mix(in srgb, var(--danger) 12%, var(--bg));
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 10px
+        }
+
+        .foot {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px
         }
     </style>
 </head>
 <body>
-    <form class="card" method="post">
-        <h3>Entrar</h3>
-        {% csrf_token %}
-        {% if form.errors %}<div class="err">Usuário ou senha inválidos.</div>{% endif %}
-        <label>Usuário</label>
-        {{ form.username }}
-        <label>Senha</label>
-        {{ form.password }}
-        <button type="submit">Entrar</button>
-    </form>
+
+    <div class="wrap">
+        <div class="brand">
+            <a class="logo" href="{% url 'feedback_list' %}">🎓 Feedbacks</a>
+            <button id="theme-toggle" class="toggle" type="button">☀️ Modo claro</button>
+        </div>
+
+        <div class="card">
+            <h1>Entrar</h1>
+            <div class="muted">Acesse o painel de feedbacks</div>
+
+            {% if form.non_field_errors %}
+            <div class="alert">
+                {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+                <div class="{% if form.username.errors %}field-error{% endif %}">
+                    <label for="id_username">Usuário</label>
+                    <input id="id_username" type="text" name="username" autocomplete="username"
+                           value="{{ form.username.value|default:'' }}" required>
+                    {{ form.username.errors }}
+                </div>
+
+                <div class="{% if form.password.errors %}field-error{% endif %}">
+                    <label for="id_password">Senha</label>
+                    <input id="id_password" type="password" name="password" autocomplete="current-password" required>
+                    {{ form.password.errors }}
+                    <div class="row" style="margin-top:6px">
+                        <label class="muted" style="display:flex; align-items:center; gap:6px; cursor:pointer">
+                            <input id="showpass" type="checkbox"> mostrar senha
+                        </label>
+                        <span class="muted"></span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <a class="btn btn--ghost" href="{% url 'feedback_list' %}">← Voltar</a>
+                    <button class="btn" type="submit">Entrar</button>
+                </div>
+            </form>
+
+            <div class="foot">
+                Precisa de acesso? Fale com um administrador.
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Theme toggle with localStorage (default = dark)
+    (function(){
+      const root = document.documentElement;
+      const key  = 'ui-theme';
+      const btn  = document.getElementById('theme-toggle');
+
+      const saved = localStorage.getItem(key);
+      const initial = saved || 'dark';
+      root.setAttribute('data-theme', initial);
+
+      const updateLabel = () => {
+        const isLight = root.getAttribute('data-theme') === 'light';
+        btn.textContent = isLight ? '🌙 Modo escuro' : '☀️ Modo claro';
+      };
+      updateLabel();
+
+      btn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem(key, next);
+        updateLabel();
+      });
+
+      // show/hide password
+      const sp = document.getElementById('showpass');
+      const pw = document.getElementById('id_password');
+      sp?.addEventListener('change', ()=>{ pw.type = sp.checked ? 'text' : 'password'; });
+    })();
+    </script>
 </body>
 </html>
