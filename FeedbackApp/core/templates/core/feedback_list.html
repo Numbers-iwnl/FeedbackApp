@@ -4,7 +4,34 @@
     <meta charset="utf-8">
     <title>Feedbacks</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <!-- Material Symbols (icons) -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet" />
+
     <style>
+        /* Material Symbols helper */
+        .ms {
+            font-family: 'Material Symbols Rounded';
+            font-weight: 600;
+            font-style: normal;
+            font-size: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            vertical-align: -2px;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .ms-18 {
+            font-size: 18px
+        }
+
+        .ms-24 {
+            font-size: 24px
+        }
+
         /* Theme vars come from _header.html. This page only defines components. */
         * {
             box-sizing: border-box
@@ -36,18 +63,6 @@
             flex: 1
         }
 
-        /* ====== ICON helper (added) ====== */
-        .ico {
-            width: 1.05em;
-            height: 1.05em;
-            vertical-align: -0.18em;
-            fill: currentColor
-        }
-
-        .btn .ico, .btn-mini .ico {
-            margin-right: 6px
-        }
-
         /* Filters */
         .filters {
             display: grid;
@@ -58,7 +73,6 @@
             border-radius: 14px;
             padding: 14px;
             margin: 10px 0 18px;
-            /* lift filter block for more contrast */
             box-shadow: 0 8px 20px color-mix(in srgb, var(--text) 8%, transparent);
         }
 
@@ -110,7 +124,7 @@
             border: 1px solid var(--line)
         }
 
-        /* Grid + Card with higher contrast (esp. light mode) */
+        /* Grid + Card */
         .grid {
             display: grid;
             gap: 16px;
@@ -125,7 +139,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            /* strong but soft shadow to pop from background */
             box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
         }
 
@@ -181,27 +194,27 @@
 
         /* Subject chips */
         .chip--financeiro {
-            background: color-mix(in srgb, #06b6d4 25%, var(--chip));
+            background: color-mix(in srgb,#06b6d4 25%,var(--chip));
         }
 
         .chip--atendimento {
-            background: color-mix(in srgb, #f97316 25%, var(--chip));
+            background: color-mix(in srgb,#f97316 25%,var(--chip));
         }
 
         .chip--plataforma {
-            background: color-mix(in srgb, #8b5cf6 25%, var(--chip));
+            background: color-mix(in srgb,#8b5cf6 25%,var(--chip));
         }
 
         .chip--conteudo {
-            background: color-mix(in srgb, #22c55e 25%, var(--chip));
+            background: color-mix(in srgb,#22c55e 25%,var(--chip));
         }
 
         .chip--eventos {
-            background: color-mix(in srgb, #ef4444 25%, var(--chip));
+            background: color-mix(in srgb,#ef4444 25%,var(--chip));
         }
 
         .chip--outros {
-            background: color-mix(in srgb, #64748b 25%, var(--chip));
+            background: color-mix(in srgb,#64748b 25%,var(--chip));
         }
 
         /* Status chips */
@@ -226,7 +239,11 @@
         .card-actions {
             display: flex;
             gap: 8px;
-            justify-content: flex-end
+            align-items: center;
+        }
+        /* keep "Resolver" glued to the left */
+        .solve-left {
+            margin-right: auto;
         }
 
         .btn-mini {
@@ -235,7 +252,10 @@
             border: 1px solid var(--line);
             background: var(--bg);
             color: color-mix(in srgb, var(--text) 90%, var(--muted));
-            cursor: pointer
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-mini--ok {
@@ -268,6 +288,12 @@
 
         .page--active {
             font-weight: 800
+        }
+
+        /* Fade resolved cards */
+        .dim-resolved {
+            opacity: .6;
+            filter: saturate(.85)
         }
 
         /* Modal + toast (unchanged) */
@@ -382,14 +408,8 @@
         <div class="w-2"><input type="date" name="ate" value="{{ ate }}" placeholder="Até"></div>
 
         <div class="w-4 right">
-            <button class="btn" type="submit">
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" /></svg>
-                Aplicar
-            </button>
-            <a class="btn btn--ghost" href="{% url 'feedback_list' %}">
-                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M6 6l2 12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l2-12M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /></svg>
-                Limpar
-            </a>
+            <button class="btn" type="submit"><span class="ms">filter_alt</span> Aplicar</button>
+            <a class="btn btn--ghost" href="{% url 'feedback_list' %}"><span class="ms">cleaning_services</span> Limpar</a>
         </div>
     </form>
 
@@ -399,9 +419,8 @@
         <article class="card {% if f.status == 'resolvido' %}dim-resolved{% endif %}" id="card-{{ f.id }}">
             <div class="row">
                 <a href="{% url 'feedback_detail' f.id %}" class="chip">#{{ f.id }}</a>
-                <!-- dd/mm/aaaa HH:mm -->
                 <span class="muted">{{ f.created_at|date:"d/m/Y H:i" }}</span>
-                <span class="chip chip--pill" title="Anexos">📎 {{ f.attachments.count }}</span>
+                <span class="chip chip--pill" title="Anexos"><span class="ms ms-18">attach_file</span> {{ f.attachments.count }}</span>
 
                 <span id="status-{{ f.id }}" class="chip status
                     {% if f.status == 'resolvido' %} status--resolvido
@@ -437,26 +456,15 @@
 
             <div class="sep"></div>
 
-            <div class="row">
-                <span class="muted">{{ f.description|default:""|truncatechars:120 }}</span>
-                <span class="grow"></span>
+            <div class="card-actions">
+                {% if f.status != 'resolvido' %}
+                <button class="btn-mini btn-mini--ok solve-left" data-resolve="{{ f.id }}">
+                    <span class="ms">done_all</span> Resolver
+                </button>
+                {% endif %}
 
-                <div class="card-actions">
-                    {% if f.status != 'resolvido' %}
-                    <button class="btn-mini btn-mini--ok" data-resolve="{{ f.id }}">
-                        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                        Marcar como resolvido
-                    </button>
-                    {% endif %}
-                    <button class="btn-mini" data-comment="{{ f.id }}">
-                        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 1 1-3.3-6.5l2.3-1.5-.8 3a8 8 0 0 1 1.8 5zM8 13h8M8 9h5" /></svg>
-                        Comentar
-                    </button>
-                    <a class="btn btn--ghost" href="{% url 'feedback_detail' f.id %}">
-                        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h10v10M19 5l-7 7M5 19h14" /></svg>
-                        Ver
-                    </a>
-                </div>
+                <button class="btn-mini" data-comment="{{ f.id }}"><span class="ms">chat_bubble</span> Comentar</button>
+                <a class="btn btn--ghost" href="{% url 'feedback_detail' f.id %}"><span class="ms">visibility</span> Ver</a>
             </div>
         </article>
         {% empty %}
@@ -482,13 +490,13 @@
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
             <div class="row">
                 <h3 id="m-title" style="margin:0">Adicionar comentário</h3>
-                <button class="btn-mini" id="m-close">Fechar</button>
+                <button class="btn-mini" id="m-close"><span class="ms">close</span> Fechar</button>
             </div>
             <p class="muted" id="m-sub" style="margin:0 0 8px"></p>
             <textarea id="m-text" placeholder="Escreva o comentário..."></textarea>
             <div class="actions">
-                <button class="btn btn--ghost" id="m-cancel">Cancelar</button>
-                <button class="btn" id="m-save">Salvar comentário</button>
+                <button class="btn btn--ghost" id="m-cancel"><span class="ms">cancel</span> Cancelar</button>
+                <button class="btn" id="m-save"><span class="ms">save</span> Salvar comentário</button>
             </div>
         </div>
     </div>
@@ -529,7 +537,6 @@
                     });
 
                     if (resp.ok) {
-                        // update chip + fade card
                         const chip = document.getElementById(`status-${id}`);
                         if (chip) {
                             chip.textContent = 'Resolvido';
@@ -579,7 +586,6 @@
             });
 
             [mClose, mCancel].forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
-
             mSave.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const text = mText.value.trim();

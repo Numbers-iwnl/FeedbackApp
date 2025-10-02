@@ -1,8 +1,11 @@
 ﻿{% load static %}
 {% now "Y-m" as current_ym %}
 <!-- Global Header Partial + Theme Toggle (supports show_new_btn/show_exports flags) -->
+<!-- Material Symbols (icons) -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL,GRAD@450,0,0" rel="stylesheet" />
+
 <style>
-    /* ===== Theme variables ===== */
+    /* ===== Theme variables (unchanged) ===== */
     :root {
         /* Dark (default) */
         --bg: #0b1220;
@@ -10,7 +13,6 @@
         --muted: #8ea0b6;
         --text: #e6edf5;
         --line: #1f2a3b;
-        /* teal primary */
         --primary: #14b8a6;
         --ok: #16a34a;
         --warn: #f59e0b;
@@ -40,7 +42,7 @@
         filter: saturate(.85);
     }
 
-    /* ===== Header styling ===== */
+    /* ===== Header styling (unchanged shell) ===== */
     .gh {
         position: sticky;
         top: 0;
@@ -59,31 +61,31 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px
+        gap: 10px;
     }
 
     .gh__brand {
         display: flex;
         align-items: center;
-        gap: 12px
+        gap: 12px;
     }
 
     .gh__logo {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         background: color-mix(in srgb, var(--card) 70%, var(--bg));
         border: 1px solid var(--line);
         color: color-mix(in srgb, var(--text) 90%, var(--muted));
         text-decoration: none;
         padding: 8px 12px;
         border-radius: 12px;
-        font-weight: 800
+        font-weight: 800;
     }
 
     .gh__nav {
         display: flex;
-        gap: 8px
+        gap: 8px;
     }
 
         .gh__nav a {
@@ -91,12 +93,15 @@
             text-decoration: none;
             padding: 8px 10px;
             border-radius: 10px;
-            border: 1px solid transparent
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
             .gh__nav a:hover {
                 border-color: var(--line);
-                background: color-mix(in srgb, var(--card) 70%, var(--bg))
+                background: color-mix(in srgb, var(--card) 70%, var(--bg));
             }
 
     .btn {
@@ -110,26 +115,26 @@
         padding: 8px 12px;
         font-weight: 800;
         cursor: pointer;
-        text-decoration: none
+        text-decoration: none;
     }
 
     .btn--ghost {
         background: color-mix(in srgb, var(--card) 70%, var(--bg));
         color: color-mix(in srgb, var(--text) 85%, var(--muted));
-        border: 1px solid var(--line)
+        border: 1px solid var(--line);
     }
 
     .gh__right {
         display: flex;
         align-items: center;
-        gap: 10px
+        gap: 10px;
     }
 
     .gh__user {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: color-mix(in srgb, var(--text) 90%, var(--muted))
+        color: color-mix(in srgb, var(--text) 90%, var(--muted));
     }
 
     .gh__sub {
@@ -138,7 +143,7 @@
         padding: 0 16px;
         display: flex;
         gap: 10px;
-        flex-wrap: wrap
+        flex-wrap: wrap;
     }
 
         .gh__sub .link {
@@ -147,11 +152,14 @@
             background: color-mix(in srgb, var(--card) 70%, var(--bg));
             border: 1px solid var(--line);
             padding: 6px 10px;
-            border-radius: 10px
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
             .gh__sub .link:hover {
-                background: color-mix(in srgb, var(--card) 60%, var(--bg))
+                background: color-mix(in srgb, var(--card) 60%, var(--bg));
             }
 
     .gh__toggle {
@@ -163,11 +171,11 @@
         color: color-mix(in srgb, var(--text) 90%, var(--muted));
         padding: 8px 10px;
         border-radius: 10px;
-        cursor: pointer
+        cursor: pointer;
     }
 
         .gh__toggle:hover {
-            background: color-mix(in srgb, var(--card) 60%, var(--bg))
+            background: color-mix(in srgb, var(--card) 60%, var(--bg));
         }
 
     /* flash messages */
@@ -176,7 +184,7 @@
         margin: 0 auto 12px;
         padding: 0 16px;
         display: grid;
-        gap: 8px
+        gap: 8px;
     }
 
     .gh__msg {
@@ -184,66 +192,72 @@
         background: color-mix(in srgb, var(--primary) 10%, var(--bg));
         color: var(--text);
         padding: 10px 12px;
-        border-radius: 10px
+        border-radius: 10px;
     }
 
         .gh__msg.success {
             border-color: color-mix(in srgb, var(--ok) 50%, var(--line));
-            background: color-mix(in srgb, var(--ok) 14%, var(--bg))
+            background: color-mix(in srgb, var(--ok) 14%, var(--bg));
         }
 
         .gh__msg.warning {
             border-color: color-mix(in srgb, var(--warn) 50%, var(--line));
-            background: color-mix(in srgb, var(--warn) 14%, var(--bg))
+            background: color-mix(in srgb, var(--warn) 14%, var(--bg));
         }
 
         .gh__msg.error {
             border-color: color-mix(in srgb, var(--danger) 50%, var(--line));
-            background: color-mix(in srgb, var(--danger) 14%, var(--bg))
+            background: color-mix(in srgb, var(--danger) 14%, var(--bg));
         }
+
+    /* Icon alignment */
+    .material-symbols-rounded {
+        font-variation-settings: 'wght' 450, 'FILL' 0;
+        vertical-align: -2px;
+    }
 
     @media (max-width:720px) {
         .gh__nav {
             display: none
         }
     }
-
-    /* tiny inline icon helper (keeps current look) */
-    .ico {
-        width: 1.05em;
-        height: 1.05em;
-        margin-right: 6px;
-        vertical-align: -0.18em;
-        fill: currentColor;
-    }
 </style>
 
 <header class="gh">
     <div class="gh__row">
         <div class="gh__brand">
-            <a class="gh__logo" href="{% url 'feedback_list' %}">🎓 Feedbacks</a>
+            <!-- Brand / link to list -->
+            <a class="gh__logo" href="{% url 'feedback_list' %}">
+                <span class="material-symbols-rounded">forum</span>
+                Feedbacks
+            </a>
+
+            <!-- Main nav -->
             <nav class="gh__nav" aria-label="Navegação">
                 <a href="{% url 'dashboard' %}">
-                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" /></svg>
-                    Dashboard
+                    <span class="material-symbols-rounded">dashboard</span> Dashboard
                 </a>
                 {% if show_new_btn != False %}
                 <a href="{% url 'feedback_create' %}" class="btn">
-                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 11V6h2v5h5v2h-5v5h-2v-5H6v-2h5z" /></svg>
-                    Novo Feedback
+                    <span class="material-symbols-rounded">add_circle</span> Novo Feedback
                 </a>
                 {% endif %}
             </nav>
         </div>
 
         <div class="gh__right">
-            <button id="gh-toggle" class="gh__toggle" type="button" aria-label="Alternar tema">☀️ Modo claro</button>
+            <!-- Theme toggle -->
+            <button id="gh-toggle" class="gh__toggle" type="button" aria-label="Alternar tema">
+                <span id="icon-theme" class="material-symbols-rounded">light_mode</span>
+                <span id="label-theme">Modo claro</span>
+            </button>
 
+            <!-- User + logout -->
             <div class="gh__user">
-                <span>👤 {{ request.user.get_full_name|default:request.user.username }}</span>
+                <span class="material-symbols-rounded">account_circle</span>
+                <span>{{ request.user.get_full_name|default:request.user.username }}</span>
                 <a class="btn btn--ghost" href="{% url 'logout' %}">
-                    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17v-2h4V9h-4V7h6v10h-6zM4 5h6V3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6v-2H4z" /></svg>
-                    Sair
+                    <span class="material-symbols-rounded">logout</span> Sair
                 </a>
             </div>
         </div>
@@ -253,21 +267,17 @@
 {% if show_exports != False %}
 <div class="gh__sub">
     <a class="link" href="{% url 'export_csv' %}">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0-3-3m3 3 3-3M5 19h14v2H5z" /></svg>
-        Exportar CSV
+        <span class="material-symbols-rounded">table</span> Exportar CSV
     </a>
     <a class="link" href="{% url 'export_excel' %}">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4V4zm4 2v12m4-12v12m4-12v12" /></svg>
-        Exportar XLSX
+        <span class="material-symbols-rounded">grid_on</span> Exportar XLSX
     </a>
     <a class="link" href="{% url 'export_pdf' %}?month={{ current_ym }}">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-3h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" /></svg>
-        Resumo PDF ({{ current_ym }})
+        <span class="material-symbols-rounded">picture_as_pdf</span> Resumo PDF ({{ current_ym }})
     </a>
     {% if request.user.is_superuser %}
     <a class="link" href="{% url 'admin:index' %}">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-7 9v-1a7 7 0 0 1 14 0v1z" /></svg>
-        Admin
+        <span class="material-symbols-rounded">admin_panel_settings</span> Admin
     </a>
     {% endif %}
 </div>
@@ -276,7 +286,9 @@
 {% if messages %}
 <div class="gh__messages">
     {% for m in messages %}
-    <div class="gh__msg {% if m.tags %}{{ m.tags }}{% endif %}">{{ m }}</div>
+    <div class="gh__msg {% if m.tags %}{{ m.tags }}{% endif %}">
+        {{ m }}
+    </div>
     {% endfor %}
 </div>
 {% endif %}
@@ -287,6 +299,8 @@
         const root = document.documentElement;
         const key = 'ui-theme';
         const btn = document.getElementById('gh-toggle');
+        const icon = document.getElementById('icon-theme');
+        const label = document.getElementById('label-theme');
 
         const saved = localStorage.getItem(key);
         const initial = saved || 'dark';
@@ -294,7 +308,8 @@
 
         const updateLabel = () => {
             const isLight = root.getAttribute('data-theme') === 'light';
-            if (btn) btn.textContent = isLight ? '🌙 Modo escuro' : '☀️ Modo claro';
+            if (icon) icon.textContent = isLight ? 'dark_mode' : 'light_mode';
+            if (label) label.textContent = isLight ? 'Modo escuro' : 'Modo claro';
         };
         updateLabel();
 

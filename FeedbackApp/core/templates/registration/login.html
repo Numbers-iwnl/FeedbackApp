@@ -2,289 +2,266 @@
 <html lang="pt-br" data-theme="dark">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Entrar • Feedback</title>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- Material Symbols (icons) -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet" />
+
     <style>
         :root {
-            --bg: #0c0f13;
-            --panel: #12161c;
-            --muted: #8a93a5;
-            --text: #e7eef9;
-            --primary: #16a34a;
-            --primary-700: #15803d;
-            --border: #1f2430;
-            --accent: #60a5fa;
+            /* Dark (default) */
+            --bg: #0b1220;
+            --card: #101827;
+            --text: #e6edf5;
+            --muted: #8ea0b6;
+            --line: #1f2a3b;
+            --primary: #14b8a6;
+            --ok: #16a34a;
+            --warn: #f59e0b;
             --danger: #ef4444;
-            --focus: #22c55e;
-            --ring: 0 0 0 3px rgba(34,197,94,.25);
-            --shadow: 0 10px 30px rgba(0,0,0,.35);
         }
 
-        [data-theme="light"] {
+        html[data-theme="light"] {
             --bg: #f6f7fb;
-            --panel: #ffffff;
-            --muted: #5b6476;
-            --text: #0d1321;
-            --primary: #15803d;
-            --primary-700: #166534;
-            --border: #e8ecf3;
-            --accent: #2563eb;
-            --danger: #dc2626;
-            --focus: #15803d;
-            --ring: 0 0 0 3px rgba(21,128,61,.18);
-            --shadow: 0 12px 28px rgba(17,24,39,.10);
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #566074;
+            --line: #d7dbe3;
+            --primary: #0f766e;
+            --ok: #15803d;
+            --warn: #b45309;
+            --danger: #b91c1c;
         }
 
         * {
             box-sizing: border-box
         }
 
-        html, body {
-            height: 100%
-        }
-
         body {
-            margin: 0;
-            font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+            margin: 0 auto;
+            max-width: 820px;
+            padding: 18px;
             background: var(--bg);
             color: var(--text);
-            display: grid;
-            place-items: center;
+            font: 15px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;
         }
 
-        .shell {
-            width: min(960px,100%);
-            padding: 24px
+        /* Material Symbols helper */
+        .ms {
+            font-family: 'Material Symbols Rounded';
+            font-weight: 600;
+            font-style: normal;
+            font-size: 20px; /* default */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            vertical-align: -2px; /* align with text nicely */
+            letter-spacing: normal;
+            text-transform: none;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .ms-24 {
+            font-size: 24px;
+        }
+
+        .ms-18 {
+            font-size: 18px;
         }
 
         .top {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            user-select: none
+            gap: 8px;
+            font-weight: 800
         }
-
-            .brand .logo {
-                width: 36px;
-                height: 36px;
-                border-radius: 999px;
-                display: grid;
-                place-items: center;
-                background: linear-gradient(135deg,#34d399, #16a34a 60%);
-                color: white;
-                font-weight: 700;
-                box-shadow: var(--shadow);
-            }
 
         .toggle {
-            appearance: none;
+            border: 1px solid var(--line);
+            background: color-mix(in srgb,var(--card) 70%,var(--bg));
+            color: color-mix(in srgb,var(--text) 90%,var(--muted));
+            padding: 8px 10px;
+            border-radius: 10px;
             cursor: pointer;
-            width: 54px;
-            height: 30px;
-            border-radius: 99px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            position: relative;
-            outline: none;
-        }
-
-            .toggle:after {
-                content: "";
-                position: absolute;
-                top: 3px;
-                left: 3px;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                background: var(--text);
-                transition: transform .2s ease;
-            }
-
-        html[data-theme="light"] .toggle:after {
-            transform: translateX(24px)
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
         }
 
         .card {
-            width: min(460px,100%);
-            background: var(--panel);
-            border: 1px solid var(--border);
+            background: var(--card);
+            border: 1px solid var(--line);
             border-radius: 16px;
-            padding: 28px;
-            box-shadow: var(--shadow);
-            margin: 0 auto;
+            padding: 18px;
+            box-shadow: 0 1px 0 color-mix(in srgb,var(--text) 4%,transparent), 0 10px 24px color-mix(in srgb,var(--text) 10%,transparent);
         }
 
         h1 {
-            font-size: 22px;
-            margin: 0 0 6px
+            margin: 0 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px
         }
 
-        p.sub {
-            margin: 0 0 18px;
+        .lead {
+            margin: 0 0 14px;
             color: var(--muted)
-        }
-
-        .alert {
-            background: rgba(239,68,68,.08);
-            border: 1px solid rgba(239,68,68,.35);
-            color: #fecaca;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-
-        .field {
-            margin: 12px 0
         }
 
         label {
             display: block;
-            font-size: 14px;
-            color: var(--muted);
-            margin-bottom: 6px
+            margin: 10px 0 6px;
+            font-weight: 700
         }
 
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 12px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text);
+        .label-row {
+            display: flex;
+            align-items: center;
+            gap: 8px
         }
 
-        input:focus {
-            outline: none;
-            border-color: var(--focus);
-            box-shadow: var(--ring)
+        .field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 12px;
         }
+
+            .field input {
+                flex: 1;
+                border: 0;
+                outline: 0;
+                background: transparent;
+                color: var(--text);
+                font: inherit;
+                padding: 4px 0;
+            }
 
         .row {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 16px
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 14px
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-decoration: none;
-            border: 1px solid transparent;
+            border-radius: 12px;
+            font-weight: 800;
             cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-primary {
+            border: 0;
+            padding: 10px 14px;
+            text-decoration: none;
+            color: #031322;
             background: var(--primary);
-            color: #fff
         }
 
-            .btn-primary:hover {
-                background: var(--primary-700)
-            }
-
-        .muted {
+        .hint {
+            margin: 10px 2px 0;
             color: var(--muted);
-            font-size: 14px
+            font-size: .92rem
         }
 
-        .footer {
-            margin-top: 18px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 12px
+        .errors {
+            border: 1px solid color-mix(in srgb,var(--danger) 50%,var(--line));
+            background: color-mix(in srgb,var(--danger) 14%,var(--bg));
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <div class="top">
-            <div class="brand">
-                <div class="logo">WF</div>
-                <div>
-                    <div style="font-weight:700; letter-spacing:.2px">Walkyria Fernandes</div>
-                    <div class="muted" style="margin-top:2px">Central de Feedback</div>
-                </div>
-            </div>
-            <label title="Alternar tema">
-                <input id="themeToggle" class="toggle" type="checkbox" />
+    <div class="top">
+        <div class="brand"><span class="ms ms-24" aria-hidden="true">school</span> <span>Feedbacks</span></div>
+        <button id="themeToggle" class="toggle" type="button">
+            <span id="themeIcon" class="ms" aria-hidden="true">light_mode</span>
+            <span id="themeText">Modo claro</span>
+        </button>
+    </div>
+
+    <div class="card">
+        <h1><span class="ms ms-24" aria-hidden="true">lock</span> Acesso restrito</h1>
+        <p class="lead">Entre com seu usuário e senha.</p>
+
+        {% if form.errors %}
+        <div class="errors"><span class="ms" aria-hidden="true">error</span> Usuário ou senha inválidos. Tente novamente.</div>
+        {% endif %}
+
+        <form method="post" action="">
+            {% csrf_token %}
+
+            <label for="id_username" class="label-row">
+                <span class="ms" aria-hidden="true">person</span> <span>Usuário</span>
             </label>
-        </div>
+            <div class="field">
+                <input id="id_username" name="username" type="text" autocomplete="username"
+                       autofocus required />
+            </div>
 
-        <div class="card">
-            <h1>Entrar</h1>
-            <p class="sub">Acesse com seu usuário e senha.</p>
+            <label for="id_password" class="label-row">
+                <span class="ms" aria-hidden="true">key</span> <span>Senha</span>
+            </label>
+            <div class="field">
+                <input id="id_password" name="password" type="password" autocomplete="current-password"
+                       required />
+            </div>
 
-            {% if messages %}
-            {% for m in messages %}
-            <div class="alert">{{ m }}</div>
-            {% endfor %}
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
             {% endif %}
 
-            {% if form.non_field_errors %}
-            <div class="alert">
-                {% for e in form.non_field_errors %}{{ e }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+            <div class="row">
+                <button class="btn" type="submit"><span class="ms" aria-hidden="true">login</span> Entrar</button>
             </div>
-            {% endif %}
 
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-
-                <div class="field">
-                    <label for="id_username">Usuário</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                    <div class="muted" style="color:#fecaca">{{ form.username.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="field">
-                    <label for="id_password">Senha</label>
-                    {{ form.password }}
-                    {% if form.password.errors %}
-                    <div class="muted" style="color:#fecaca">{{ form.password.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="row">
-                    <span class="muted">Sessão expira em 60 minutos.</span>
-                    <button class="btn btn-primary" type="submit">Entrar</button>
-                </div>
-            </form>
-
-            <div class="footer">
-                © {{ now|date:"Y" }} • Walkyria Fernandes
-            </div>
-        </div>
+            <p class="hint"><span class="ms ms-18" aria-hidden="true">schedule</span> Sessões expiram em aproximadamente <strong>60 minutos</strong> de inatividade.</p>
+        </form>
     </div>
 
     <script>
-        // Theme toggle with localStorage (default dark)
         (function () {
-            const KEY = 'wf-theme';
-            const saved = localStorage.getItem(KEY);
-            if (saved === 'light') { document.documentElement.setAttribute('data-theme', 'light'); }
-            const toggle = document.getElementById('themeToggle');
-            toggle.checked = document.documentElement.getAttribute('data-theme') === 'light';
-            toggle.addEventListener('change', function () {
-                const mode = this.checked ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', mode);
-                localStorage.setItem(KEY, mode);
+            const root = document.documentElement;
+            const key = 'ui-theme';
+            const btn = document.getElementById('themeToggle');
+            const icon = document.getElementById('themeIcon');
+            const txt = document.getElementById('themeText');
+
+            const saved = localStorage.getItem(key);
+            root.setAttribute('data-theme', saved || 'dark');
+
+            function updateLabel() {
+                const light = root.getAttribute('data-theme') === 'light';
+                icon.textContent = light ? 'dark_mode' : 'light_mode';
+                txt.textContent = light ? 'Modo escuro' : 'Modo claro';
+            }
+            updateLabel();
+
+            btn.addEventListener('click', () => {
+                const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                root.setAttribute('data-theme', next);
+                localStorage.setItem(key, next);
+                updateLabel();
             });
         })();
     </script>
