@@ -36,7 +36,6 @@
             flex: 1
         }
 
-        /* Layout */
         .topbar {
             display: flex;
             align-items: center;
@@ -56,13 +55,7 @@
             padding: 10px 14px;
             font-weight: 800;
             cursor: pointer;
-            text-decoration: none
-        }
-
-        .btn--ghost {
-            background: color-mix(in srgb, var(--card) 70%, var(--bg));
-            color: color-mix(in srgb, var(--text) 85%, var(--muted));
-            border: 1px solid var(--line)
+            text-decoration: none;
         }
 
         .btn--bare {
@@ -71,7 +64,10 @@
             color: color-mix(in srgb, var(--text) 85%, var(--muted));
             border-radius: 10px;
             padding: 8px 10px;
-            cursor: pointer
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .row {
@@ -112,7 +108,6 @@
             }
         }
 
-        /* Card shell (high contrast) */
         .card {
             background: var(--card);
             border: 1px solid var(--line);
@@ -141,7 +136,6 @@
                 font-size: 12px
             }
 
-        /* Bars */
         .bar {
             height: 10px;
             border-radius: 999px;
@@ -162,7 +156,6 @@
             justify-content: space-between
         }
 
-        /* Chips / colors */
         .chip {
             display: inline-flex;
             align-items: center;
@@ -173,7 +166,7 @@
             color: var(--chip-txt);
             font-size: 12px;
             font-weight: 800;
-            letter-spacing: .2px
+            letter-spacing: .2px;
         }
 
         .chip--pill {
@@ -182,66 +175,66 @@
             color: color-mix(in srgb, var(--text) 90%, var(--muted))
         }
 
-        .chip--ok {
-            background: color-mix(in srgb, #16a34a 30%, var(--chip));
-        }
-
-        .chip--warn {
-            background: color-mix(in srgb, #f59e0b 30%, var(--chip));
-            color: #111827
-        }
-
-        .chip--info {
-            background: color-mix(in srgb, #3b82f6 30%, var(--chip));
-        }
-
-        /* Category color helpers (same palette site-wide) */
+        /* ===== Consistent palette ===== */
+        /* TIPOS */
         .c-elogio {
-            background: #10b981
+            background: #10b981;
+            color: #052e27
         }
 
         .c-reclamacao {
-            background: #ef4444
+            background: #ef4444;
+            color: #fee2e2
         }
 
         .c-sugestao {
-            background: #6366f1
+            background: #6366f1;
+            color: #eef2ff
         }
-
+        /* STATUS */
         .c-status-resolvido {
-            background: #16a34a
+            background: #16a34a;
+            color: #052e1a
         }
 
         .c-status-analise {
-            background: #3b82f6
+            background: #3b82f6;
+            color: #061225
         }
 
         .c-status-pendente {
-            background: #f59e0b
+            background: #f59e0b;
+            color: #1c1917
         }
-
+        /* ASSUNTOS (unique colors) */
         .c-financeiro {
-            background: #06b6d4
+            background: #06b6d4;
+            color: #052a2f
         }
 
         .c-atendimento {
-            background: #f97316
+            background: #f97316;
+            color: #2a0a01
         }
 
         .c-plataforma {
-            background: #8b5cf6
+            background: #8b5cf6;
+            color: #1b0a3a
         }
 
         .c-conteudo {
-            background: #22c55e
+            background: #22c55e;
+            color: #052a17
         }
 
         .c-eventos {
-            background: #ef4444
+            background: #db2777;
+            color: #330515
         }
-
+        /* pink (not red) */
         .c-outros {
-            background: #64748b
+            background: #64748b;
+            color: #0b1220
         }
 
         .list {
@@ -315,9 +308,9 @@
             <span class="chip chip--pill">Mês: <b id="m-label"></b></span>
         </div>
         <div class="row">
-            <button class="btn--bare" id="m-prev" title="Mês anterior">◀</button>
+            <button class="btn--bare" id="m-prev" title="Mês anterior">◀ Anterior</button>
             <input id="m-input" type="month" value="{{ current_ym }}">
-            <button class="btn--bare" id="m-next" title="Próximo mês">▶</button>
+            <button class="btn--bare" id="m-next" title="Próximo mês">Próximo ▶</button>
         </div>
     </div>
 
@@ -344,8 +337,8 @@
         <div class="card kpi">
             <h3>Elogios × Reclamações</h3>
             <div class="row-just">
-                <span class="chip chip--ok" id="k-elogios">Elogios: —</span>
-                <span class="chip" style="background:#ef4444;color:#fee2e2" id="k-reclamacoes">Reclamações: —</span>
+                <span class="chip c-elogio" id="k-elogios">Elogios: —</span>
+                <span class="chip c-reclamacao" id="k-reclamacoes">Reclamações: —</span>
             </div>
             <div class="bar"><i id="bar-elogio" style="width:0%" class="c-elogio"></i></div>
             <div class="bar" style="margin-top:8px"><i id="bar-recl" style="width:0%" class="c-reclamacao"></i></div>
@@ -364,9 +357,7 @@
         <!-- Tipos & Status -->
         <div class="card">
             <h3 style="margin-bottom:6px">Tipos no mês</h3>
-            <div class="list" id="list-type">
-                <!-- rows injected -->
-            </div>
+            <div class="list" id="list-type"></div>
 
             <div class="row" style="margin-top:12px">
                 <h3 class="grow" style="margin:0">Status</h3>
@@ -376,9 +367,7 @@
                     <span><span class="dot c-status-resolvido"></span>Resolvido</span>
                 </div>
             </div>
-            <div class="list" id="list-status" style="margin-top:6px">
-                <!-- rows injected -->
-            </div>
+            <div class="list" id="list-status" style="margin-top:6px"></div>
         </div>
 
         <!-- Assuntos & Top cursos -->
@@ -395,17 +384,13 @@
                 </div>
             </div>
 
-            <div class="list" id="list-subject" style="margin-top:6px">
-                <!-- rows injected -->
-            </div>
+            <div class="list" id="list-subject" style="margin-top:6px"></div>
 
             <div class="row" style="margin-top:14px">
                 <h3 style="margin:0">Top cursos/turmas</h3>
                 <span class="mini muted">(top 5 no mês)</span>
             </div>
-            <div class="list" id="list-course">
-                <!-- rows injected -->
-            </div>
+            <div class="list" id="list-course"></div>
         </div>
     </section>
 
@@ -419,53 +404,44 @@
   const months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-  // quick helpers
-  const qs = sel => document.querySelector(sel);
   const el = id => document.getElementById(id);
 
-  function parseYM(ym){
-    const [y,m] = ym.split('-').map(x=>parseInt(x,10));
-    return {y, m}; // m 1..12
-  }
-  function fmtMonthLabel(ym){
-    const {y,m} = parseYM(ym);
-    return cap(months[m-1]) + '/' + y;
-  }
+  function parseYM(ym){ const [y,m] = ym.split('-').map(x=>parseInt(x,10)); return {y,m}; }
+  function fmtMonthLabel(ym){ const {y,m} = parseYM(ym); return cap(months[m-1]) + '/' + y; }
   function ymAdd(ym, delta){
-    let {y,m} = parseYM(ym);
-    m += delta;
+    let {y,m} = parseYM(ym); m += delta;
     while (m < 1){ m += 12; y -= 1; }
     while (m > 12){ m -= 12; y += 1; }
     return y.toString().padStart(4,'0') + '-' + m.toString().padStart(2,'0');
   }
   function monthRange(ym){
     const {y,m} = parseYM(ym);
-    const last = new Date(y, m, 0).getDate(); // JS month is 1..12 here because we gave m, Date expects 0..11 in ctor trick
+    const last = new Date(y, m, 0).getDate();
     const de  = `${y}-${String(m).padStart(2,'0')}-01`;
     const ate = `${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
     return {de, ate};
   }
 
-  // color maps (consistent with site)
-  const colorType = {
-    elogio: '#10b981',
-    reclamacao: '#ef4444',
-    sugestao: '#6366f1',
-  };
-  const colorStatus = {
-    pendente: '#f59e0b',
-    em_analise: '#3b82f6',
-    resolvido: '#16a34a',
-  };
-  const colorSubject = {
+  /* normalize/slugify labels: lower, remove accents, spaces -> _, strip non-alnum */
+  function slug(s){
+    return (s||'')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')  // remove diacritics
+      .replace(/\s+/g,'_')
+      .replace(/[^a-z0-9_]/g,'')
+      .replace(/_+/g,'_');
+  }
+
+  // unified color maps (match CSS classes above)
+  const colorType   = { elogio:'#10b981', reclamacao:'#ef4444', sugestao:'#6366f1' };
+  const colorStatus = { pendente:'#f59e0b', em_analise:'#3b82f6', resolvido:'#16a34a' };
+  const colorSubject= {
     financeiro:'#06b6d4', atendimento:'#f97316', plataforma:'#8b5cf6',
-    conteudo:'#22c55e', eventos:'#ef4444', outros:'#64748b'
+    conteudo:'#22c55e', eventos:'#db2777', outros:'#64748b'
   };
 
-  // DOM injectors
   function row(container, label, value, pct, color, listLinkHref){
-    const wrap = document.createElement('div');
-    wrap.className = 'item';
+    const wrap = document.createElement('div'); wrap.className = 'item';
     const a = document.createElement('div'); a.textContent = label;
     const bar = document.createElement('div'); bar.className='bar';
     const i = document.createElement('i'); i.style.width = (pct||0) + '%'; i.style.background = color;
@@ -475,24 +451,19 @@
     wrap.appendChild(a); wrap.appendChild(bar); wrap.appendChild(right);
     if (listLinkHref){
       const link = document.createElement('a'); link.href=listLinkHref; link.className='mini'; link.textContent='ver ›';
-      link.style.marginLeft='8px';
-      right.appendChild(link);
+      link.style.marginLeft='8px'; right.appendChild(link);
     }
     container.appendChild(wrap);
   }
 
-  // fetch helpers
   async function getJSON(url){
     const r = await fetch(url, {credentials:'same-origin'});
     if (!r.ok) throw new Error('HTTP '+r.status);
     return r.json();
   }
 
-  // main render
   async function render(ym){
     mLabel.textContent = fmtMonthLabel(ym);
-
-    // current + previous for trend
     const prevYM = ymAdd(ym, -1);
 
     const [sum, sumPrev, brk] = await Promise.all([
@@ -501,13 +472,11 @@
       getJSON(`/stats/breakdown/?month=${ym}`),
     ]);
 
-    // KPIs
     const total = sum.total || 0;
     el('k-total').textContent = total;
     const diff = total - (sumPrev.total || 0);
     const sign = diff === 0 ? '' : (diff > 0 ? '▲ +' : '▼ ');
-    el('k-total-trend').textContent =
-      (sumPrev.total ? `${sign}${Math.abs(diff)} vs ${fmtMonthLabel(prevYM)}` : '—');
+    el('k-total-trend').textContent = (sumPrev.total ? `${sign}${Math.abs(diff)} vs ${fmtMonthLabel(prevYM)}` : '—');
 
     const resPct = total ? Math.round(100*sum.resolvidos/total) : 0;
     el('k-res').textContent = resPct + '%';
@@ -522,44 +491,38 @@
     el('bar-recl').style.width   = pRec + '%';
     el('bar-sug').style.width    = (total? Math.round(100*sum.sugestoes/total):0) + '%';
 
-    // quick links (month range)
     const {de, ate} = monthRange(ym);
     const enc = (s)=> encodeURIComponent(s);
 
-    // detail lists
     const listType   = el('list-type');   listType.innerHTML = '';
     const listStatus = el('list-status'); listStatus.innerHTML = '';
     const listSubject= el('list-subject');listSubject.innerHTML = '';
     const listCourse = el('list-course'); listCourse.innerHTML = '';
 
-    const types = brk.type || [];
-    types.forEach(t=>{
-      const key = Object.keys(colorType).includes(t.label.toLowerCase()) ? t.label.toLowerCase() : null;
+    (brk.type || []).forEach(t=>{
+      const key = slug(t.label);                                   // elogio / reclamacao / sugestao
       const pct = total ? (100*(t.value||0)/total) : 0;
-      const link = `/feedbacks/?tipo=${enc(key||'')}&de=${de}&ate=${ate}`;
+      const link = `/feedbacks/?tipo=${enc(key)}&de=${de}&ate=${ate}`;
       const color = colorType[key] || '#8ea0b6';
       row(listType, t.label, t.value, pct, color, link);
     });
 
-    const statuses = brk.status || [];
-    statuses.forEach(s=>{
-      const key = s.label.toLowerCase().replace(' ', '_');
+    (brk.status || []).forEach(s=>{
+      const key = slug(s.label);                                   // pendente / em_analise / resolvido
       const pct = total ? (100*(s.value||0)/total) : 0;
       const link = `/feedbacks/?status=${enc(key)}&de=${de}&ate=${ate}`;
       const color = colorStatus[key] || '#8ea0b6';
       row(listStatus, s.label, s.value, pct, color, link);
     });
 
-    const subjects = brk.subject || [];
-    subjects.forEach(s=>{
-      const key = s.label.toLowerCase();
+    (brk.subject || []).forEach(s=>{
+      const key = slug(s.label);                                   // financeiro / conteudo / ...
       const pct = total ? (100*(s.value||0)/total) : 0;
       const link = `/feedbacks/?assunto=${enc(key)}&de=${de}&ate=${ate}`;
       const color = colorSubject[key] || '#8ea0b6';
       row(listSubject, s.label, s.value, pct, color, link);
     });
 
-    // top courses (sort desc and take 5)
     const courses = (brk.course || []).slice().sort((a,b)=> (b.value||0)-(a.value||0)).slice(0,5);
     courses.forEach(c=>{
       const label = c.label || '—';
@@ -568,27 +531,17 @@
       row(listCourse, label, c.value, pct, '#14b8a6', link);
     });
 
-    // quick sug link
-    el('lnk-sug').href = `/feedbacks/?tipo=sugestao&de=${de}&ate=${ate}`;
+    el('lnk-sug').href = `/feedbacks/?tipo=${enc('sugestao')}&de=${de}&ate=${ate}`;
   }
 
-  // init
   function boot(){
     const ym = ymInput.value || '{{ current_ym }}';
     mLabel.textContent = fmtMonthLabel(ym);
-    render(ym).catch(()=>{ /* ignore for now */ });
+    render(ym).catch(()=>{});
   }
 
-  ymPrev.addEventListener('click', ()=>{
-    ymInput.value = ymAdd(ymInput.value, -1);
-    mLabel.textContent = fmtMonthLabel(ymInput.value);
-    render(ymInput.value);
-  });
-  ymNext.addEventListener('click', ()=>{
-    ymInput.value = ymAdd(ymInput.value, 1);
-    mLabel.textContent = fmtMonthLabel(ymInput.value);
-    render(ymInput.value);
-  });
+  ymPrev.addEventListener('click', ()=>{ ymInput.value = ymAdd(ymInput.value, -1); mLabel.textContent = fmtMonthLabel(ymInput.value); render(ymInput.value); });
+  ymNext.addEventListener('click', ()=>{ ymInput.value = ymAdd(ymInput.value, 1);  mLabel.textContent = fmtMonthLabel(ymInput.value); render(ymInput.value); });
   ymInput.addEventListener('change', ()=> render(ymInput.value));
 
   boot();
