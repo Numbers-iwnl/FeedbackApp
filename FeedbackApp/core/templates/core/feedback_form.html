@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet" />
 
     <style>
-        /* Icon helper */
         .ms {
             font-family: 'Material Symbols Rounded';
             font-weight: 600;
@@ -116,10 +115,7 @@
             color: color-mix(in srgb, var(--text) 90%, var(--muted));
         }
 
-        .control,
-        textarea,
-        select,
-        input[type="text"] {
+        .control, textarea, select, input[type="text"] {
             background: var(--bg);
             color: var(--text);
             border: 1px solid var(--line);
@@ -158,7 +154,18 @@
             letter-spacing: .2px
         }
 
-        /* Error styles */
+        /* Anexos */
+        #attachments-input {
+            display: none
+        }
+
+        #file-list {
+            margin: 0;
+            padding-left: 16px;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
         .errorlist {
             list-style: none;
             padding: 0;
@@ -196,89 +203,70 @@
             <span class="muted">Os campos com * são obrigatórios</span>
         </div>
 
-        <!-- Non-field errors -->
         {{ form.non_field_errors }}
 
+        <!-- enctype é essencial para upload -->
         <form method="post" enctype="multipart/form-data" style="margin-top:10px">
             {% csrf_token %}
 
             <div class="form-grid">
 
-                <!-- Aluno -->
                 <div class="field">
-                    <label class="label" for="{{ form.student_name.id_for_label }}">
-                        <span class="ms">face</span> Aluno *
-                    </label>
-                    {{ form.student_name }}
-                    {{ form.student_name.errors }}
+                    <label class="label" for="{{ form.student_name.id_for_label }}"><span class="ms">face</span> Aluno *</label>
+                    {{ form.student_name }} {{ form.student_name.errors }}
                 </div>
 
-                <!-- Tipo -->
                 <div class="field">
-                    <label class="label" for="{{ form.type.id_for_label }}">
-                        <span class="ms">category</span> Tipo *
-                    </label>
-                    {{ form.type }}
-                    {{ form.type.errors }}
+                    <label class="label" for="{{ form.type.id_for_label }}"><span class="ms">category</span> Tipo *</label>
+                    {{ form.type }} {{ form.type.errors }}
                 </div>
 
-                <!-- Assunto -->
                 <div class="field">
-                    <label class="label" for="{{ form.subject.id_for_label }}">
-                        <span class="ms">sell</span> Assunto *
-                    </label>
-                    {{ form.subject }}
-                    {{ form.subject.errors }}
+                    <label class="label" for="{{ form.subject.id_for_label }}"><span class="ms">sell</span> Assunto *</label>
+                    {{ form.subject }} {{ form.subject.errors }}
                 </div>
 
-                <!-- Curso -->
                 <div class="field">
-                    <label class="label" for="{{ form.course_name.id_for_label }}">
-                        <span class="ms">school</span> Curso
-                    </label>
-                    {{ form.course_name }}
-                    {{ form.course_name.errors }}
+                    <label class="label" for="{{ form.course_name.id_for_label }}"><span class="ms">school</span> Curso</label>
+                    {{ form.course_name }} {{ form.course_name.errors }}
                 </div>
 
-                <!-- Turma -->
                 <div class="field">
-                    <label class="label" for="{{ form.class_name.id_for_label }}">
-                        <span class="ms">group</span> Turma
-                    </label>
-                    {{ form.class_name }}
-                    {{ form.class_name.errors }}
+                    <label class="label" for="{{ form.class_name.id_for_label }}"><span class="ms">group</span> Turma</label>
+                    {{ form.class_name }} {{ form.class_name.errors }}
                 </div>
 
-                <!-- Operador (somente exibição) -->
                 <div class="field">
-                    <label class="label">
-                        <span class="ms">support_agent</span> Operador
-                    </label>
-                    <div class="control" style="display:flex; align-items:center; gap:8px">
+                    <label class="label"><span class="ms">support_agent</span> Operador</label>
+                    <div class="control" style="display:flex;align-items:center;gap:8px">
                         <span class="ms">verified_user</span>
                         <span>{{ request.user.get_full_name|default:request.user.username }}</span>
                     </div>
                     <div class="help">Definido automaticamente ao salvar.</div>
                 </div>
 
-                <!-- Descrição (largura total) -->
                 <div class="field" style="grid-column:1 / -1">
-                    <label class="label" for="{{ form.description.id_for_label }}">
-                        <span class="ms">notes</span> Descrição
-                    </label>
-                    {{ form.description }}
-                    {{ form.description.errors }}
+                    <label class="label" for="{{ form.description.id_for_label }}"><span class="ms">notes</span> Descrição</label>
+                    {{ form.description }} {{ form.description.errors }}
                 </div>
 
-                <!-- Anexos (largura total) -->
+                <!-- ============ ANEXOS ============ -->
                 <div class="field" style="grid-column:1 / -1">
-                    <label class="label" for="{{ form.attachments.id_for_label }}">
-                        <span class="ms">attach_file</span> Anexos
-                    </label>
-                    {{ form.attachments }}
-                    {{ form.attachments.errors }}
+                    <label class="label" for="attachments-input"><span class="ms">attach_file</span> Anexos</label>
+
+                    <!-- Input de arquivos (fora do form model) -->
+                    <input type="file" id="attachments-input" name="attachments" multiple />
+
+                    <div class="row" style="gap:8px;align-items:center; margin-top:6px">
+                        <button type="button" id="btn-add-files" class="btn btn--ghost">
+                            <span class="ms">upload_file</span> Adicionar arquivos
+                        </button>
+                        <ul id="file-list"></ul>
+                    </div>
+
                     <div class="help">Você pode selecionar vários arquivos (imagens, PDFs, áudio, etc.).</div>
                 </div>
+                <!-- ================================== -->
 
             </div>
 
@@ -288,6 +276,34 @@
             </div>
         </form>
     </div>
+
+    <script>
+        // Botão -> input[file] + preview dos nomes
+        (function () {
+            const btn = document.getElementById('btn-add-files');
+            const input = document.getElementById('attachments-input');
+            const list = document.getElementById('file-list');
+
+            if (!btn || !input) return;
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                input.click();
+            });
+
+            input.addEventListener('change', function () {
+                if (!list) return;
+                list.innerHTML = '';
+                const files = Array.from(input.files || []);
+                files.forEach(f => {
+                    const li = document.createElement('li');
+                    const kb = Math.max(1, Math.round(f.size / 1024));
+                    li.textContent = `${f.name} · ${kb} KB`;
+                    list.appendChild(li);
+                });
+            });
+        })();
+    </script>
 
 </body>
 </html>

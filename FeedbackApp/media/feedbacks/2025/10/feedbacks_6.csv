@@ -1,0 +1,14 @@
+id;data;aluno;operador;tipo;assunto;curso;turma;status;descricao;anexos_qtd
+13;2025-09-30 14:20;Sara;João;reclamacao;financeiro;;;pendente;Deisy não me pagou!!!;0
+12;2025-09-25 14:25;testecomimagem;joao;reclamacao;atendimento;rca;1;resolvido;bom;1
+11;2025-09-25 14:17;dasd5;;reclamacao;atendimento;;;resolvido;;1
+10;2025-09-25 14:15;teste9;;reclamacao;atendimento;;;pendente;;1
+9;2025-09-25 14:14;mateusdodoi;;reclamacao;conteudo;;;pendente;;1
+8;2025-09-25 14:14;mateusdodoi;;reclamacao;conteudo;;;resolvido;;1
+7;2025-09-25 14:10;mateusdodoi;;reclamacao;conteudo;;;pendente;;1
+6;2025-09-25 14:09;mateusdodoi;;reclamacao;conteudo;;;pendente;;1
+5;2025-09-25 14:09;feed5;;reclamacao;atendimento;;;pendente;;1
+4;2025-09-25 14:01;teste 4;;reclamacao;plataforma;;;pendente;;0
+3;2025-09-25 13:34;teste 3;;reclamacao;plataforma;;;pendente;;0
+2;2025-09-25 12:21;Sara;Mayara;reclamacao;conteudo;RCA360;42;resolvido;Mayara é muito chata!;0
+1;2025-09-25 12:16;Teste 1;;elogio;conteudo;;;resolvido;amei tudo;1

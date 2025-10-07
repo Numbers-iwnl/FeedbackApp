@@ -134,7 +134,7 @@ def feedback_create(request):
             fb.save()
 
             # anexos (campo Multiple)
-            for f in form.cleaned_data.get("attachments", []):
+            for f in request.FILES.getlist("attachments"):
                 FeedbackAttachment.objects.create(
                     feedback=fb,
                     file=f,

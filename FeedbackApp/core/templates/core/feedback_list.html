@@ -1,38 +1,12 @@
 ﻿<!doctype html>
 <html lang="pt-br">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Feedbacks</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-
-    <!-- Material Symbols (icons) -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
 
     <style>
-        /* Material Symbols helper */
-        .ms {
-            font-family: 'Material Symbols Rounded';
-            font-weight: 600;
-            font-style: normal;
-            font-size: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            vertical-align: -2px;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .ms-18 {
-            font-size: 18px
-        }
-
-        .ms-24 {
-            font-size: 24px
-        }
-
-        /* Theme vars come from _header.html. This page only defines components. */
+        /* Uses the theme tokens defined in _header.html (dark default, light supported) */
         * {
             box-sizing: border-box
         }
@@ -47,7 +21,7 @@
         }
 
         a {
-            color: #14b8a6;
+            color: var(--primary);
             text-decoration: none
         }
 
@@ -63,7 +37,7 @@
             flex: 1
         }
 
-        /* Filters */
+        /* ===== Filters ===== */
         .filters {
             display: grid;
             gap: 10px;
@@ -82,7 +56,7 @@
                 color: var(--text);
                 border: 1px solid var(--line);
                 border-radius: 10px;
-                padding: 10px
+                padding: 10px;
             }
 
             .filters .w-3 {
@@ -97,13 +71,15 @@
                 grid-column: span 4
             }
 
+            /* left aligned buttons */
             .filters .right {
                 display: flex;
                 gap: 8px;
-                justify-content: flex-end;
-                align-items: center
+                justify-content: flex-start;
+                align-items: center;
             }
 
+        /* base buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -115,31 +91,83 @@
             padding: 10px 14px;
             font-weight: 800;
             cursor: pointer;
-            text-decoration: none
+            text-decoration: none;
         }
 
         .btn--ghost {
             background: color-mix(in srgb, var(--card) 70%, var(--bg));
             color: color-mix(in srgb, var(--text) 85%, var(--muted));
-            border: 1px solid var(--line)
+            border: 1px solid var(--line);
         }
 
-        /* Grid + Card */
+        .btn--sm {
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-weight: 700
+        }
+
+        /* hero buttons (filters only) */
+        .btn-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0b5f3c;
+            color: #eafff7;
+            border: 1px solid color-mix(in srgb, #0b5f3c 70%, #000);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 6px 14px color-mix(in srgb, #0b5f3c 35%, transparent), 0 1px 0 color-mix(in srgb, #000 15%, transparent) inset;
+            transform: translateY(0);
+            transition: transform .12s, box-shadow .12s, background .12s;
+        }
+
+            .btn-hero:hover {
+                background: #0d6f48;
+                box-shadow: 0 8px 18px color-mix(in srgb, #0d6f48 45%, transparent), 0 1px 0 color-mix(in srgb, #000 18%, transparent) inset;
+                transform: translateY(-1px);
+            }
+
+            .btn-hero:active {
+                background: #0a5738;
+                transform: translateY(0)
+            }
+
+        .btn-hero--ghost {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg));
+            color: color-mix(in srgb, var(--text) 85%, var(--muted));
+            border: 1px solid var(--line);
+            box-shadow: none;
+        }
+
+            .btn-hero--ghost:hover {
+                background: color-mix(in srgb, var(--card) 60%, var(--bg))
+            }
+
+        /* ===== Card grid ===== */
         .grid {
             display: grid;
             gap: 16px;
-            grid-template-columns: repeat(auto-fill,minmax(340px,1fr))
+            grid-template-columns: repeat(auto-fill,minmax(360px,1fr));
         }
 
         .card {
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 16px;
-            padding: 14px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 10px;
             box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent), 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+            min-height: 192px;
+        }
+
+        .card--dim {
+            opacity: .65;
+            filter: saturate(.9)
         }
 
         .row {
@@ -155,113 +183,142 @@
             border-radius: 1px
         }
 
-        /* Chips */
+        /* chips/badges */
         .chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 999px;
-            background: var(--chip);
-            color: var(--chip-txt);
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: .2px
-        }
-
-        .chip--pill {
             background: var(--bg);
             border: 1px solid var(--line);
-            color: color-mix(in srgb, var(--text) 90%, var(--muted))
+            color: color-mix(in srgb, var(--text) 90%, var(--muted));
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .2px;
         }
 
-        /* Type chips (solid for Reclamação to avoid faded look) */
-        .chip--elogio {
-            background: color-mix(in srgb, #10b981 22%, var(--chip));
-            color: #d1fae5
+            .chip .material-symbols-rounded {
+                font-size: 18px
+            }
+
+        .chip--id {
+            background: color-mix(in srgb, var(--card) 70%, var(--bg))
         }
 
-        .chip--sugestao {
-            background: color-mix(in srgb, #6366f1 22%, var(--chip));
-            color: #e0e7ff
+        .chip--count {
+            padding: 2px 8px
         }
 
-        .chip--reclamacao {
-            background: #ef4444;
-            color: #fee2e2;
-            border: 1px solid color-mix(in srgb, #ef4444 60%, var(--line))
-        }
-
-        /* Subject chips */
-        .chip--financeiro {
-            background: color-mix(in srgb,#06b6d4 25%,var(--chip));
-        }
-
-        .chip--atendimento {
-            background: color-mix(in srgb,#f97316 25%,var(--chip));
-        }
-
-        .chip--plataforma {
-            background: color-mix(in srgb,#8b5cf6 25%,var(--chip));
-        }
-
-        .chip--conteudo {
-            background: color-mix(in srgb,#22c55e 25%,var(--chip));
-        }
-
-        .chip--eventos {
-            background: color-mix(in srgb,#ef4444 25%,var(--chip));
-        }
-
-        .chip--outros {
-            background: color-mix(in srgb,#64748b 25%,var(--chip));
-        }
-
-        /* Status chips */
         .status {
-            margin-left: auto
+            margin-left: auto;
+            font-weight: 800;
+            letter-spacing: .2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--bg);
         }
 
         .status--pendente {
-            background: color-mix(in srgb, #f59e0b 30%, var(--chip));
+            background: color-mix(in srgb, #f59e0b 22%, var(--bg));
             color: #111827
         }
 
         .status--em_analise {
-            background: color-mix(in srgb, #3b82f6 30%, var(--chip));
+            background: color-mix(in srgb, #3b82f6 18%, var(--bg))
         }
 
         .status--resolvido {
-            background: color-mix(in srgb, #16a34a 30%, var(--chip));
+            background: color-mix(in srgb, #16a34a 18%, var(--bg))
         }
 
-        /* Actions */
-        .card-actions {
-            display: flex;
-            gap: 8px;
+        /* tags with colored dot */
+        .tag {
+            display: inline-flex;
             align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            font-size: 12px;
+            font-weight: 800;
+            color: color-mix(in srgb, var(--text) 92%, var(--muted));
         }
-        /* keep "Resolver" glued to the left */
-        .solve-left {
-            margin-right: auto;
+
+            .tag i {
+                width: 8px;
+                height: 8px;
+                border-radius: 999px;
+                display: inline-block;
+                border: 1px solid #0002
+            }
+
+        .t-elogio i {
+            background: #10b981
+        }
+
+        .t-reclamacao i {
+            background: #ef4444
+        }
+
+        .t-sugestao i {
+            background: #6366f1
+        }
+
+        .s-financeiro i {
+            background: #06b6d4
+        }
+
+        .s-atendimento i {
+            background: #f97316
+        }
+
+        .s-plataforma i {
+            background: #8b5cf6
+        }
+
+        .s-conteudo i {
+            background: #22c55e
+        }
+
+        .s-eventos i {
+            background: #ef4444
+        }
+
+        .s-outros i {
+            background: #64748b
+        }
+
+        /* footer actions */
+        .card__footer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: auto
         }
 
         .btn-mini {
-            padding: 6px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
             border-radius: 10px;
             border: 1px solid var(--line);
             background: var(--bg);
             color: color-mix(in srgb, var(--text) 90%, var(--muted));
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-weight: 700;
         }
 
         .btn-mini--ok {
-            background: #0d3b2e;
+            background: color-mix(in srgb, #10b981 22%, var(--bg));
             border-color: #10b981;
-            color: #d1fae5
+            color: #052e2b
         }
 
         .btn-mini:disabled {
@@ -290,13 +347,7 @@
             font-weight: 800
         }
 
-        /* Fade resolved cards */
-        .dim-resolved {
-            opacity: .6;
-            filter: saturate(.85)
-        }
-
-        /* Modal + toast (unchanged) */
+        /* Modal + toast */
         .modal-back {
             position: fixed;
             inset: 0;
@@ -362,6 +413,17 @@
                 background: #2f2612;
                 color: #fff7ed
             }
+
+        /* === DARK MODE CONTRAST FIXES (only overrides on dark) === */
+        html:not([data-theme="light"]) .status--pendente,
+        html:not([data-theme="light"]) .status--em_analise,
+        html:not([data-theme="light"]) .status--resolvido {
+            color: #ffffff; /* chips text white on dark */
+        }
+
+        html:not([data-theme="light"]) .btn-mini--ok {
+            color: #eafff7; /* "Resolver" text readable on dark */
+        }
     </style>
 </head>
 <body>
@@ -373,9 +435,9 @@
 
     <!-- Filters -->
     <form method="get" class="filters">
-        <div class="w-3"><input name="aluno" placeholder="Filtrar por aluno" value="{{ aluno }}"></div>
-        <div class="w-3"><input name="operador" placeholder="Filtrar por operador" value="{{ operador }}"></div>
-        <div class="w-3"><input name="curso" placeholder="Filtrar por curso" value="{{ curso }}"></div>
+        <div class="w-3"><input name="aluno" placeholder="Filtrar por aluno" value="{{ aluno }}" /></div>
+        <div class="w-3"><input name="operador" placeholder="Filtrar por operador" value="{{ operador }}" /></div>
+        <div class="w-3"><input name="curso" placeholder="Filtrar por curso" value="{{ curso }}" /></div>
 
         <div class="w-3">
             <select name="tipo" aria-label="Filtrar por tipo">
@@ -404,67 +466,89 @@
             </select>
         </div>
 
-        <div class="w-2"><input type="date" name="de" value="{{ de }}" placeholder="De"></div>
-        <div class="w-2"><input type="date" name="ate" value="{{ ate }}" placeholder="Até"></div>
+        <div class="w-2"><input type="date" name="de" value="{{ de }}" placeholder="De" /></div>
+        <div class="w-2"><input type="date" name="ate" value="{{ ate }}" placeholder="Até" /></div>
 
         <div class="w-4 right">
-            <button class="btn" type="submit"><span class="ms">filter_alt</span> Aplicar</button>
-            <a class="btn btn--ghost" href="{% url 'feedback_list' %}"><span class="ms">cleaning_services</span> Limpar</a>
+            <button class="btn-hero" type="submit">
+                <span class="material-symbols-rounded">filter_list</span> Aplicar
+            </button>
+            <a class="btn-hero btn-hero--ghost" href="{% url 'feedback_list' %}">
+                <span class="material-symbols-rounded">mop</span> Limpar
+            </a>
         </div>
     </form>
 
     <!-- Cards grid -->
     <div class="grid">
         {% for f in items %}
-        <article class="card {% if f.status == 'resolvido' %}dim-resolved{% endif %}" id="card-{{ f.id }}">
-            <div class="row">
-                <a href="{% url 'feedback_detail' f.id %}" class="chip">#{{ f.id }}</a>
-                <span class="muted">{{ f.created_at|date:"d/m/Y H:i" }}</span>
-                <span class="chip chip--pill" title="Anexos"><span class="ms ms-18">attach_file</span> {{ f.attachments.count }}</span>
+        <article class="card {% if f.status == 'resolvido' %}card--dim{% endif %}" id="card-{{ f.id }}">
+            <!-- header -->
+            <div class="row" style="justify-content:space-between">
+                <div class="row">
+                    <span class="chip chip--id">
+                        <span class="material-symbols-rounded">tag</span> #{{ f.id }}
+                    </span>
+                    <span class="chip">
+                        <span class="material-symbols-rounded">calendar_month</span>
+                        {{ f.created_at|date:"d/m/Y H:i" }}
+                    </span>
+                    <span class="chip chip--count" title="Anexos">
+                        <span class="material-symbols-rounded">attach_file</span> {{ f.attachments.count }}
+                    </span>
+                </div>
 
-                <span id="status-{{ f.id }}" class="chip status
-                    {% if f.status == 'resolvido' %} status--resolvido
-                    {% elif f.status == 'em_analise' %} status--em_analise
-                    {% else %} status--pendente {% endif %}">
+                <span id="status-{{ f.id }}" class="status
+            {% if f.status == 'resolvido' %} status--resolvido
+            {% elif f.status == 'em_analise' %} status--em_analise
+            {% else %} status--pendente {% endif %}">
+                    <span class="material-symbols-rounded">
+                        {% if f.status == 'resolvido' %}check_circle
+                        {% elif f.status == 'em_analise' %}hourglass
+                        {% else %}priority_high{% endif %}
+                    </span>
                     {{ f.get_status_display }}
                 </span>
             </div>
 
+            <!-- headline -->
             <div class="row">
-                <div class="grow"><strong>{{ f.student_name }}</strong></div>
-                <div class="muted">Operador: {{ f.operator_name|default:"—" }}</div>
+                <strong class="grow" style="font-size:16px">{{ f.student_name }}</strong>
+                <span class="muted">
+                    <span class="material-symbols-rounded" style="font-size:18px">person</span>
+                    Operador: {{ f.operator_name|default:"—" }}
+                </span>
             </div>
 
+            <!-- tags -->
             <div class="row">
-                <span class="chip
-                    {% if f.type == 'elogio' %}chip--elogio{% elif f.type == 'sugestao' %}chip--sugestao{% else %}chip--reclamacao{% endif %}">
-                    {{ f.get_type_display }}
+                <span class="tag t-{{ f.type }}"><i></i> {{ f.get_type_display }}</span>
+                <span class="tag s-{{ f.subject }}"><i></i> {{ f.get_subject_display }}</span>
+                <span class="muted">
+                    <span class="material-symbols-rounded" style="font-size:18px">school</span>
+                    Curso: {{ f.course_name|default:"—" }} · Turma: {{ f.class_name|default:"—" }}
                 </span>
-
-                <span class="chip
-                    {% if f.subject == 'financeiro' %}chip--financeiro
-                    {% elif f.subject == 'atendimento' %}chip--atendimento
-                    {% elif f.subject == 'plataforma' %}chip--plataforma
-                    {% elif f.subject == 'conteudo' %}chip--conteudo
-                    {% elif f.subject == 'eventos' %}chip--eventos
-                    {% else %}chip--outros{% endif %}">
-                    {{ f.get_subject_display }}
-                </span>
-
-                <span class="muted">Curso: {{ f.course_name|default:"—" }} · Turma: {{ f.class_name|default:"—" }}</span>
             </div>
 
             <div class="sep"></div>
 
-            <div class="card-actions">
+            <!-- footer actions -->
+            <div class="card__footer">
                 {% if f.status != 'resolvido' %}
-                <button class="btn-mini btn-mini--ok solve-left" data-resolve="{{ f.id }}">
-                    <span class="ms">done_all</span> Resolver
+                <button class="btn-mini btn-mini--ok" data-resolve="{{ f.id }}">
+                    <span class="material-symbols-rounded">task_alt</span> Resolver
                 </button>
                 {% endif %}
 
-                <button class="btn-mini" data-comment="{{ f.id }}"><span class="ms">chat_bubble</span> Comentar</button>
-                <a class="btn btn--ghost" href="{% url 'feedback_detail' f.id %}"><span class="ms">visibility</span> Ver</a>
+                <span class="grow"></span>
+
+                <button class="btn-mini" data-comment="{{ f.id }}">
+                    <span class="material-symbols-rounded">chat_add_on</span> Comentar
+                </button>
+
+                <a class="btn-mini" href="{% url 'feedback_detail' f.id %}">
+                    <span class="material-symbols-rounded">visibility</span> Ver
+                </a>
             </div>
         </article>
         {% empty %}
@@ -490,13 +574,19 @@
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
             <div class="row">
                 <h3 id="m-title" style="margin:0">Adicionar comentário</h3>
-                <button class="btn-mini" id="m-close"><span class="ms">close</span> Fechar</button>
+                <button class="btn-mini" id="m-close">
+                    <span class="material-symbols-rounded">close</span> Fechar
+                </button>
             </div>
             <p class="muted" id="m-sub" style="margin:0 0 8px"></p>
             <textarea id="m-text" placeholder="Escreva o comentário..."></textarea>
             <div class="actions">
-                <button class="btn btn--ghost" id="m-cancel"><span class="ms">cancel</span> Cancelar</button>
-                <button class="btn" id="m-save"><span class="ms">save</span> Salvar comentário</button>
+                <button class="btn btn--ghost" id="m-cancel">
+                    <span class="material-symbols-rounded">cancel</span> Cancelar
+                </button>
+                <button class="btn" id="m-save">
+                    <span class="material-symbols-rounded">save</span> Salvar comentário
+                </button>
             </div>
         </div>
     </div>
@@ -539,16 +629,13 @@
                     if (resp.ok) {
                         const chip = document.getElementById(`status-${id}`);
                         if (chip) {
-                            chip.textContent = 'Resolvido';
+                            chip.innerHTML = '<span class="material-symbols-rounded">check_circle</span> Resolvido';
                             chip.classList.remove('status--pendente', 'status--em_analise');
                             chip.classList.add('status--resolvido');
                         }
-                        const card = document.getElementById(`card-${id}`);
-                        card?.classList.add('dim-resolved');
-
-                        // hide the "resolve" button
+                        document.getElementById(`card-${id}`)?.classList.add('card--dim');
                         btn.parentElement.removeChild(btn);
-                        toast(`Comentário de status adicionado ao #${id}.`, 'ok');
+                        toast(`Status do #${id} atualizado.`, 'ok');
                     } else {
                         btn.disabled = false;
                         toast('Falha ao atualizar status.', 'warn');
@@ -556,7 +643,7 @@
                 });
             });
 
-            // Comment modal logic
+            // Comment modal
             const modalBack = document.getElementById('modal-back');
             const mClose = document.getElementById('m-close');
             const mCancel = document.getElementById('m-cancel');
@@ -566,26 +653,21 @@
             let currentId = null;
 
             const openModal = (id) => {
-                currentId = id;
-                mText.value = '';
+                currentId = id; mText.value = '';
                 mSub.textContent = `Feedback #${id}`;
                 modalBack.style.display = 'flex';
                 setTimeout(() => mText.focus(), 50);
             };
-            const closeModal = () => {
-                modalBack.style.display = 'none';
-                currentId = null;
-            };
+            const closeModal = () => { modalBack.style.display = 'none'; currentId = null; };
 
-            document.querySelectorAll('[data-comment]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
+            document.querySelectorAll('[data-comment]')
+                .forEach(btn => btn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const id = btn.getAttribute('data-comment');
-                    openModal(id);
-                });
-            });
+                    openModal(btn.getAttribute('data-comment'));
+                }));
 
-            [mClose, mCancel].forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
+            [mClose, mCancel].forEach(b => b.addEventListener('click', e => { e.preventDefault(); closeModal(); }));
+
             mSave.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const text = mText.value.trim();
@@ -602,15 +684,10 @@
                     credentials: 'same-origin'
                 });
 
-                if (resp.ok) {
-                    toast(`Comentário adicionado ao #${currentId}.`, 'ok');
-                    closeModal();
-                } else {
-                    toast('Falha ao adicionar comentário.', 'warn');
-                }
+                if (resp.ok) { toast(`Comentário adicionado ao #${currentId}.`, 'ok'); closeModal(); }
+                else { toast('Falha ao adicionar comentário.', 'warn'); }
             });
 
-            // Close modal on backdrop click
             modalBack.addEventListener('click', (e) => { if (e.target === modalBack) closeModal(); });
         })();
     </script>

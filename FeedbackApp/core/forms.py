@@ -1,49 +1,62 @@
-﻿# -*- coding: utf-8 -*-
+﻿# core/forms.py
 from django import forms
-from django.conf import settings
 from .models import Feedback
 
-# Allow multiple file selection
-class MultiFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
+# ===== Dropdown options for "Curso" (Curso -> <select>) =====
+COURSE_CHOICES = [
+    ("", "Selecione o curso"),
+    ("RCA360", "RCA360"),
+    ("RCA360 INFINITO", "RCA360 INFINITO"),
+    ("LIBERAÇÃO FUNCIONAL AVANÇADA", "LIBERAÇÃO FUNCIONAL AVANÇADA"),
+    ("MOBILIZAÇÃO NEURAL", "MOBILIZAÇÃO NEURAL"),
+    ("PÓS-GRADUAÇÃO", "PÓS-GRADUAÇÃO"),
+    ("POWERFISIO", "POWERFISIO"),
+    ("MENTORIA BLACK", "MENTORIA BLACK"),
+    ("BLACK DIAMOND", "BLACK DIAMOND"),
+    ("CONGRESSO RCA", "CONGRESSO RCA"),
+]
 
 class FeedbackForm(forms.ModelForm):
-    attachments = forms.FileField(
-        required=False,
-        widget=MultiFileInput(attrs={"multiple": True})
-    )
-
+    """
+    Formulário da página 'Novo Feedback'.
+    - Mantém seus campos originais
+    - 'attachments' NÃO é mais um campo do formulário. O upload é lido direto de request.FILES.
+    """
     class Meta:
         model = Feedback
         fields = [
-            "student_name", "operator_name", "type", "subject",
-            "course_name", "class_name", "description"
+            "student_name",   # Aluno
+            "type",           # Tipo
+            "subject",        # Assunto
+            "course_name",    # Curso (dropdown)
+            "class_name",     # Turma
+            "description",    # Descrição
         ]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 4}),
+            "course_name": forms.Select(choices=COURSE_CHOICES, attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"rows": 5, "class": "form-control"}),
+        }
+        labels = {
+            "student_name": "Aluno",
+            "type": "Tipo",
+            "subject": "Assunto",
+            "course_name": "Curso",
+            "class_name": "Turma",
+            "description": "Descrição",
         }
 
-    def clean_attachments(self):
-        files = self.files.getlist("attachments")
-        if not files:
-            return files
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Estilos/placeholder básicos (opcional)
+        self.fields["student_name"].widget.attrs.setdefault("placeholder", "Nome do aluno")
+        self.fields["class_name"].widget.attrs.setdefault("placeholder", "Turma (opcional)")
+        for name in ["student_name", "type", "subject", "class_name"]:
+            self.fields[name].widget.attrs.setdefault("class", "form-control")
 
-        max_mb = getattr(settings, "MAX_ATTACHMENT_MB", 10)
-        max_bytes = max_mb * 1024 * 1024
-        allowed = getattr(settings, "ALLOWED_MIME_TYPES", None)  # None/empty => no MIME check
-
-        for f in files:
-            if f.size and f.size > max_bytes:
-                raise forms.ValidationError(f"Arquivo '{f.name}' excede {max_mb} MB.")
-
-            ct = getattr(f, "content_type", None)
-            if allowed:
-                if ct not in allowed:
-                    raise forms.ValidationError(f"Tipo de arquivo não permitido: {ct or 'desconhecido'}.")
-
-        return files
-
-
-class StatusForm(forms.Form):
-    status = forms.ChoiceField(choices=Feedback.STATUS_CHOICES)
+class StatusForm(forms.ModelForm):
+    """Usado nas telas que permitem alterar o status."""
+    class Meta:
+        model = Feedback
+        fields = ["status"]
+        labels = {"status": "Status"}
+        widgets = {"status": forms.Select(attrs={"class": "form-control"})}

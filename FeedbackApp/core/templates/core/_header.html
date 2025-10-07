@@ -2,10 +2,10 @@
 {% now "Y-m" as current_ym %}
 <!-- Global Header Partial + Theme Toggle (supports show_new_btn/show_exports flags) -->
 <!-- Material Symbols (icons) -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght,FILL,GRAD@450,0,0" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0" rel="stylesheet">
 
 <style>
-    /* ===== Theme variables (unchanged) ===== */
+    /* ===== Theme variables ===== */
     :root {
         /* Dark (default) */
         --bg: #0b1220;
@@ -13,6 +13,7 @@
         --muted: #8ea0b6;
         --text: #e6edf5;
         --line: #1f2a3b;
+        /* teal primary */
         --primary: #14b8a6;
         --ok: #16a34a;
         --warn: #f59e0b;
@@ -42,7 +43,7 @@
         filter: saturate(.85);
     }
 
-    /* ===== Header styling (unchanged shell) ===== */
+    /* ===== Header styling ===== */
     .gh {
         position: sticky;
         top: 0;
@@ -73,7 +74,7 @@
     .gh__logo {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         background: color-mix(in srgb, var(--card) 70%, var(--bg));
         border: 1px solid var(--line);
         color: color-mix(in srgb, var(--text) 90%, var(--muted));
@@ -82,6 +83,10 @@
         border-radius: 12px;
         font-weight: 800;
     }
+
+        .gh__logo .material-symbols-rounded {
+            font-size: 20px;
+        }
 
     .gh__nav {
         display: flex;
@@ -94,9 +99,6 @@
             padding: 8px 10px;
             border-radius: 10px;
             border: 1px solid transparent;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
             .gh__nav a:hover {
@@ -104,25 +106,56 @@
                 background: color-mix(in srgb, var(--card) 70%, var(--bg));
             }
 
+    /* Base “resolver-style” solid button (dark green) */
     .btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: var(--primary);
-        color: #031322;
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 12px;
+        background: #0b5f3c;
+        color: #eafff7;
+        border: 1px solid color-mix(in srgb, #0b5f3c 70%, #000);
+        border-radius: 12px;
+        padding: 10px 14px;
         font-weight: 800;
         cursor: pointer;
         text-decoration: none;
+        box-shadow: 0 6px 14px color-mix(in srgb, #0b5f3c 35%, transparent), 0 1px 0 color-mix(in srgb, #000 15%, transparent) inset;
+        transition: transform .12s, box-shadow .12s, background .12s;
     }
 
+        .btn:hover {
+            background: #0d6f48;
+            box-shadow: 0 8px 18px color-mix(in srgb, #0d6f48 45%, transparent), 0 1px 0 color-mix(in srgb, #000 18%, transparent) inset;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+    /* Ghost button */
     .btn--ghost {
         background: color-mix(in srgb, var(--card) 70%, var(--bg));
         color: color-mix(in srgb, var(--text) 85%, var(--muted));
         border: 1px solid var(--line);
+        box-shadow: none;
     }
+
+        .btn--ghost:hover {
+            background: color-mix(in srgb, var(--card) 60%, var(--bg));
+        }
+
+    /* === NEW: Pure white button (used ONLY for “Novo Feedback”) === */
+    .btn--white {
+        background: #ffffff !important;
+        color: #0f172a !important; /* dark text on white */
+        border: 1px solid var(--line) !important;
+        box-shadow: 0 6px 14px rgba(0,0,0,.08), 0 1px 0 rgba(0,0,0,.06) inset;
+    }
+
+        .btn--white:hover {
+            background: #f6f7fb !important;
+        }
 
     .gh__right {
         display: flex;
@@ -210,49 +243,43 @@
             background: color-mix(in srgb, var(--danger) 14%, var(--bg));
         }
 
-    /* Icon alignment */
-    .material-symbols-rounded {
-        font-variation-settings: 'wght' 450, 'FILL' 0;
-        vertical-align: -2px;
-    }
-
     @media (max-width:720px) {
         .gh__nav {
             display: none
         }
+    }
+
+    .material-symbols-rounded {
+        font-size: 18px;
+        line-height: 1;
     }
 </style>
 
 <header class="gh">
     <div class="gh__row">
         <div class="gh__brand">
-            <!-- Brand / link to list -->
             <a class="gh__logo" href="{% url 'feedback_list' %}">
-                <span class="material-symbols-rounded">forum</span>
-                Feedbacks
+                <span class="material-symbols-rounded">forum</span> Feedbacks
             </a>
-
-            <!-- Main nav -->
             <nav class="gh__nav" aria-label="Navegação">
                 <a href="{% url 'dashboard' %}">
                     <span class="material-symbols-rounded">dashboard</span> Dashboard
                 </a>
                 {% if show_new_btn != False %}
-                <a href="{% url 'feedback_create' %}" class="btn">
-                    <span class="material-symbols-rounded">add_circle</span> Novo Feedback
+                <!-- Novo Feedback: always white -->
+                <a href="{% url 'feedback_create' %}" class="btn btn--white">
+                    <span class="material-symbols-rounded">note_add</span> Novo Feedback
                 </a>
                 {% endif %}
             </nav>
         </div>
 
         <div class="gh__right">
-            <!-- Theme toggle -->
             <button id="gh-toggle" class="gh__toggle" type="button" aria-label="Alternar tema">
-                <span id="icon-theme" class="material-symbols-rounded">light_mode</span>
-                <span id="label-theme">Modo claro</span>
+                <span class="material-symbols-rounded">dark_mode</span>
+                <span id="gh-toggle-label">Modo escuro</span>
             </button>
 
-            <!-- User + logout -->
             <div class="gh__user">
                 <span class="material-symbols-rounded">account_circle</span>
                 <span>{{ request.user.get_full_name|default:request.user.username }}</span>
@@ -286,9 +313,7 @@
 {% if messages %}
 <div class="gh__messages">
     {% for m in messages %}
-    <div class="gh__msg {% if m.tags %}{{ m.tags }}{% endif %}">
-        {{ m }}
-    </div>
+    <div class="gh__msg {% if m.tags %}{{ m.tags }}{% endif %}">{{ m }}</div>
     {% endfor %}
 </div>
 {% endif %}
@@ -299,8 +324,7 @@
         const root = document.documentElement;
         const key = 'ui-theme';
         const btn = document.getElementById('gh-toggle');
-        const icon = document.getElementById('icon-theme');
-        const label = document.getElementById('label-theme');
+        const label = document.getElementById('gh-toggle-label');
 
         const saved = localStorage.getItem(key);
         const initial = saved || 'dark';
@@ -308,8 +332,8 @@
 
         const updateLabel = () => {
             const isLight = root.getAttribute('data-theme') === 'light';
-            if (icon) icon.textContent = isLight ? 'dark_mode' : 'light_mode';
-            if (label) label.textContent = isLight ? 'Modo escuro' : 'Modo claro';
+            if (label) label.textContent = isLight ? 'Modo claro' : 'Modo escuro';
+            if (btn) btn.querySelector('.material-symbols-rounded').textContent = isLight ? 'light_mode' : 'dark_mode';
         };
         updateLabel();
 
