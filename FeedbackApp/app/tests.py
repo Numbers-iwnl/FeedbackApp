@@ -12,7 +12,7 @@ class ViewTest(TestCase):
     """Tests for the application views."""
 
     if django.VERSION[:2] >= (1, 7):
-        # Django 1.7 requires an explicit setup() when running tests in PTVS
+        # Django 1.7 requires an explicit setup() when running tests in 
         @classmethod
         def setUpClass(cls):
             super(ViewTest, cls).setUpClass()
